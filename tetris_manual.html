@@ -508,12 +508,12 @@
   <div class="section-title">Section 06</div>
   <h2>アイテムブロック</h2>
 
-  <p>通常のピースが <strong>15% の確率</strong>で特殊なアイテムブロックになります。アイテムブロックはネクスト表示の時点では分からず、設置した瞬間に効果が発動します。</p>
+  <p>通常のピースが <strong>18% の確率</strong>で特殊なアイテムブロックになります。アイテムブロックはネクスト表示の時点では分からず、設置した瞬間に効果が発動します。</p>
 
   <div class="item-card">
     <div class="item-icon item-icon-rainbow">★</div>
     <div class="item-body">
-      <h3><span class="badge badge-item">RAINBOW</span> &nbsp;列全消去</h3>
+      <h3><span class="badge badge-item">RAINBOW</span> &nbsp;恵みの雨（列全消去）</h3>
       <p>設置した瞬間、そのピースが含まれる<strong>全ての行を強制消去</strong>します（揃っていなくても消去）。
       消去行数 × 200 × レベルのボーナスが加算されます。<br>
       ブロック色がリアルタイムにレインボーサイクルし、キラキラと輝いて目立ちます。</p>
@@ -521,12 +521,28 @@
   </div>
 
   <div class="item-card">
-    <div class="item-icon item-icon-drill" style="color:#0a2a3a; font-size:26px; font-weight:900">D</div>
+    <div class="item-icon item-icon-drill" style="color:#0a2a3a; font-size:26px; font-weight:900">耕</div>
     <div class="item-body">
-      <h3><span class="badge badge-drill">DRILL</span> &nbsp;貫通破壊</h3>
+      <h3><span class="badge badge-drill">DRILL</span> &nbsp;耕運機（縦貫通破壊）</h3>
       <p>設置した瞬間、ピース各列の<strong>真下 2〜3 マスのブロックを破壊</strong>し、上のブロックが落下します。
       破壊数 × 80 × レベルのボーナスが加算されます。<br>
       <span style="color:var(--garbage)">ガーベージ行（お邪魔行）</span>を破壊した場合は通常の <strong>3 倍</strong>のボーナスになり、予約ガーベージもキャンセルされます。</p>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-icon" style="background:#ffa020; color:#4a2000; font-size:26px; font-weight:900; box-shadow:0 0 16px rgba(255,160,32,.5)">肥</div>
+    <div class="item-body">
+      <h3><span class="badge" style="background:rgba(255,160,32,.2); color:#ffb040; border:1px solid rgba(255,160,32,.4)">COMPOST</span> &nbsp;完熟堆肥（豊作ボーナス＆ゾーン蓄積）</h3>
+      <p>土壌に栄養を供給する特製堆肥。設置した瞬間に<strong>大量の豊作ボーナススコア</strong>（セル数 × 350 × レベル）を獲得し、さらに<strong>ゾーンゲージが +25% 蓄積</strong>されます。</p>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-icon" style="background:#40e070; color:#053010; font-size:26px; font-weight:900; box-shadow:0 0 16px rgba(64,224,112,.5)">刈</div>
+    <div class="item-body">
+      <h3><span class="badge" style="background:rgba(64,224,112,.2); color:#50f080; border:1px solid rgba(64,224,112,.4)">WEEDER</span> &nbsp;除草・草刈機（ガーベージ一掃）</h3>
+      <p>畑の雑草や邪魔な石を一掃。盤面最下部の<strong>ガーベージブロック（お邪魔行）を最大 2 行完全に刈り取って消去</strong>します（ガーベージがない場合は最下段の通常ブロック行を 1 行消去）。予約中のガーベージも軽減されます。</p>
     </div>
   </div>
 </div>
@@ -652,25 +668,25 @@
   <p>レベルが 5 上がるごとにボードの背景・色・パーティクルが自動的に変化します。</p>
 
   <div class="theme-grid">
-    <div class="theme-card" style="background:rgba(0,12,52,.6); border-color:#234faf">
-      <div class="theme-name" style="color:#b9daff">🌊 深海</div>
-      <div class="theme-level" style="color:#4a73b4">Lv 1〜5</div>
-      <div class="theme-desc" style="color:#7a9de0">深海のような濃紺の世界。泡のパーティクルが漂います。</div>
+    <div class="theme-card" style="background:rgba(16,26,14,.6); border-color:#488a36">
+      <div class="theme-name" style="color:#dcfce7">🌱 春の畑</div>
+      <div class="theme-level" style="color:#86efac">Lv 1〜5</div>
+      <div class="theme-desc" style="color:#bbf7d0">播種と芽吹きの季節。若葉のパーティクルが穏やかに舞います。</div>
     </div>
-    <div class="theme-card" style="background:rgba(4,24,6,.6); border-color:#2d7634">
-      <div class="theme-name" style="color:#c3f2c8">🌿 森林</div>
-      <div class="theme-level" style="color:#4a9450">Lv 6〜10</div>
-      <div class="theme-desc" style="color:#7ab580">深い緑に包まれた森。葉っぱのパーティクルが舞い散ります。</div>
+    <div class="theme-card" style="background:rgba(8,26,38,.6); border-color:#2d96b4">
+      <div class="theme-name" style="color:#cffafe">💧 夏の水田</div>
+      <div class="theme-level" style="color:#67e8f9">Lv 6〜10</div>
+      <div class="theme-desc" style="color:#a5f3fc">青々とした稲穂と清流。水滴のバブルパーティクルが漂います。</div>
     </div>
-    <div class="theme-card" style="background:rgba(40,4,0,.6); border-color:#bc3a10">
-      <div class="theme-name" style="color:#ffd0b2">🌋 火山</div>
-      <div class="theme-level" style="color:#9e4e30">Lv 11〜15</div>
-      <div class="theme-desc" style="color:#c07050">灼熱の溶岩地帯。炎のパーティクルが燃え盛ります。</div>
+    <div class="theme-card" style="background:rgba(42,20,6,.6); border-color:#d2731c">
+      <div class="theme-name" style="color:#ffedd5">🍂 秋の果樹園</div>
+      <div class="theme-level" style="color:#fdba74">Lv 11〜15</div>
+      <div class="theme-desc" style="color:#fed7aa">完熟フルーツと実りの夕暮れ。黄金の実りの光が灯ります。</div>
     </div>
-    <div class="theme-card" style="background:rgba(2,2,14,.6); border-color:#583ea8">
-      <div class="theme-name" style="color:#d7cdff">🌌 宇宙</div>
-      <div class="theme-level" style="color:#524b91">Lv 16 以上</div>
-      <div class="theme-desc" style="color:#8278b5">漆黒の宇宙空間。星のパーティクルが瞬きます。</div>
+    <div class="theme-card" style="background:rgba(24,8,36,.6); border-color:#e1b92d">
+      <div class="theme-name" style="color:#fef08a">🏮 大収穫祭</div>
+      <div class="theme-level" style="color:#fde047">Lv 16 以上</div>
+      <div class="theme-desc" style="color:#fef9c3">祝祭の直売所と夜市。満天の星と提灯の光が瞬きます。</div>
     </div>
   </div>
 </div>
@@ -821,8 +837,10 @@
       <tbody>
         <tr><td><span class="badge badge-zone">青く光る行</span></td><td>ゾーン中の蓄積ライン（終了時に一括消去）</td></tr>
         <tr><td><span class="badge badge-gray">グレーの行</span></td><td>ガーベージ行（穴が 1 列あり）</td></tr>
-        <tr><td><span class="badge badge-item">★ マーク</span></td><td>RAINBOW アイテムブロック</td></tr>
-        <tr><td><span class="badge badge-drill">D マーク</span></td><td>DRILL アイテムブロック</td></tr>
+        <tr><td><span class="badge badge-item">★ マーク</span></td><td>RAINBOW（恵みの雨・全行消去）</td></tr>
+        <tr><td><span class="badge badge-drill">耕 マーク</span></td><td>DRILL（耕運機・縦貫通破壊）</td></tr>
+        <tr><td><span class="badge" style="background:rgba(255,160,32,.2); color:#ffb040">肥 マーク</span></td><td>COMPOST（完熟堆肥・大豊作ボーナス＋ゾーン蓄積）</td></tr>
+        <tr><td><span class="badge" style="background:rgba(64,224,112,.2); color:#50f080">刈 マーク</span></td><td>WEEDER（除草・草刈機・ガーベージ一掃）</td></tr>
         <tr><td>右側の赤いバー</td><td>ガーベージ警告インジケーター</td></tr>
       </tbody>
     </table>
@@ -832,7 +850,7 @@
 </div><!-- /container -->
 
 <div class="footer">
-  TETRIS — Pygame Edition &nbsp;|&nbsp; Python 3 &nbsp;|&nbsp; 個人学習用プロジェクト
+  大収穫！ 農業テトリス — Pygame &amp; WebAssembly Edition &nbsp;|&nbsp; Python 3
 </div>
 
 </body>

@@ -25,6 +25,25 @@ python -m http.server 8000
 ```
 ブラウザで `http://localhost:8000/index.html` を開きます。
 
-## 📖 操作方法・ゲーム仕様
+## 🌐 オンラインで遊ぶ
+Webブラウザ上でインストール不要で今すぐプレイできます：
+- **[GitHub Pages 版](https://maichi333.github.io/agri-tetris/)**
+- **[Cloudflare Workers 版](https://my-cloudflare-site.maichi333.workers.dev/tetris/)**
 
-詳しいゲームルール（SRSウォールキック、DAS/ARR切替、ゾーンシステム等）は [HANDOFF.md](HANDOFF.md) および `tetris_manual.html` をご覧ください。
+## 📖 操作方法
+
+| キー | 動作 |
+|---|---|
+| `←` / `→` | 左右移動（長押しで高速移動） |
+| `↑` / `X` | 右回転（時計回り / SRS） |
+| `Z` | 左回転（反時計回り / SRS） |
+| `↓` | ソフトドロップ（通常より高速落下） |
+| `Space` | ハードドロップ（即時着地＆ロック） |
+| `C` / `Shift` | ホールド（キープ） |
+| `Tab` | DAS / ARR 操作感切替（NORMAL / FAST / PRO） |
+| `Enter` | ゾーン発動（ゲージ満タン時） |
+| `M` | BGM・効果音ミュート切替 |
+| `P` | ポーズ |
+| `R` | リスタート / タイトルへ戻る |
+
+詳しいゲームルール（四季の農業テーマ、特殊アイテム、SRSウォールキック、ゾーンシステム等）は [HANDOFF.md](HANDOFF.md) および `tetris_manual.html` をご覧ください。

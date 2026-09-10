@@ -139,57 +139,57 @@ C_WHITE = (255, 255, 255)
 # =============================================================================
 
 THEMES = [
-    {   # ── Lv 1-5: 深海 ──────────────────────────
-        'name':    '深海',
-        'bg_top':  (  0,  12,  52),   # 背景グラデーション 上
-        'bg_bot':  (  0,  30,  85),   # 背景グラデーション 下
-        'board':   (  0,   5,  22),
-        'border':  ( 35,  95, 175),
-        'grid':    (  8,  22,  55),
-        'panel':   ( 10,  24,  65),
-        'c_text':  (185, 218, 255),
-        'c_dim':   ( 72, 115, 180),
-        'particle_type': 'bubble',
-        'particle_count': 28,
-    },
-    {   # ── Lv 6-10: 森林 ─────────────────────────
-        'name':    '森林',
-        'bg_top':  (  4,  24,   6),
-        'bg_bot':  ( 12,  50,  16),
-        'board':   (  2,  10,   4),
-        'border':  ( 45, 118,  52),
-        'grid':    ( 10,  30,  13),
-        'panel':   ( 12,  42,  15),
-        'c_text':  (195, 242, 200),
-        'c_dim':   ( 72, 148,  78),
+    {   # ── Lv 1-5: 春の畑（播種・芽吹き）─────────────────────
+        'name':    '春の畑',
+        'bg_top':  ( 16,  26,  14),   # 柔らかな若葉と黒土のグラデーション
+        'bg_bot':  ( 28,  44,  22),
+        'board':   ( 12,  18,  10),
+        'border':  ( 72, 138,  54),   # 新緑グリーン
+        'grid':    ( 20,  34,  16),
+        'panel':   ( 18,  30,  15),
+        'c_text':  (220, 245, 205),
+        'c_dim':   (120, 160, 105),
         'particle_type': 'leaf',
-        'particle_count': 22,
+        'particle_count': 24,
     },
-    {   # ── Lv 11-15: 火山 ────────────────────────
-        'name':    '火山',
-        'bg_top':  ( 40,   4,   0),
-        'bg_bot':  ( 80,  14,   0),
-        'board':   ( 20,   2,   0),
-        'border':  (188,  58,  16),
-        'grid':    ( 52,  10,   0),
-        'panel':   ( 58,  10,   0),
-        'c_text':  (255, 208, 178),
-        'c_dim':   (158,  78,  48),
+    {   # ── Lv 6-10: 夏の水田（青葉・清流）────────────────────
+        'name':    '夏の水田',
+        'bg_top':  (  8,  26,  38),   # 清流ブルーと青々とした稲穂
+        'bg_bot':  ( 12,  50,  62),
+        'board':   (  6,  18,  26),
+        'border':  ( 45, 150, 180),   # 澄んだ水色
+        'grid':    ( 14,  36,  48),
+        'panel':   ( 12,  32,  44),
+        'c_text':  (195, 240, 255),
+        'c_dim':   ( 85, 155, 180),
+        'particle_type': 'bubble',
+        'particle_count': 26,
+    },
+    {   # ── Lv 11-15: 秋の果樹園（完熟・実り）─────────────────
+        'name':    '秋の果樹園',
+        'bg_top':  ( 42,  20,   6),   # 実りの夕暮れオレンジ・アンバー
+        'bg_bot':  ( 72,  36,  10),
+        'board':   ( 24,  10,   4),
+        'border':  (210, 115,  28),   # 完熟ゴールド・オレンジ
+        'grid':    ( 52,  26,   8),
+        'panel':   ( 48,  22,   6),
+        'c_text':  (255, 228, 190),
+        'c_dim':   (185, 115,  65),
         'particle_type': 'ember',
-        'particle_count': 35,
+        'particle_count': 30,
     },
-    {   # ── Lv 16+: 宇宙 ──────────────────────────
-        'name':    '宇宙',
-        'bg_top':  (  2,   2,  14),
-        'bg_bot':  (  4,   2,  26),
-        'board':   (  0,   0,   8),
-        'border':  ( 88,  62, 168),
-        'grid':    (  8,   6,  24),
-        'panel':   (  8,   8,  32),
-        'c_text':  (215, 205, 255),
-        'c_dim':   ( 82,  75, 145),
+    {   # ── Lv 16+: 大収穫祭（夜市・直売所）───────────────────
+        'name':    '大収穫祭',
+        'bg_top':  ( 24,   8,  36),   # 祝祭の夜空と提灯の煌めき
+        'bg_bot':  ( 44,  14,  64),
+        'board':   ( 16,   5,  24),
+        'border':  (225, 185,  45),   # 黄金の稲穂ゴールド
+        'grid':    ( 38,  16,  52),
+        'panel':   ( 34,  12,  48),
+        'c_text':  (255, 240, 205),
+        'c_dim':   (175, 125, 195),
         'particle_type': 'star',
-        'particle_count': 55,
+        'particle_count': 45,
     },
 ]
 
@@ -611,9 +611,14 @@ def draw_cell(surface, px, py, color, size=CELL, alpha=255, item_type=None):
             pygame.draw.line(surface, sc, (sx, sy - arm), (sx, sy + arm), 1)
             pygame.draw.circle(surface, (255, 255, 255), (sx, sy), 1)
 
-    # ── 耕運機（DRILL）：シンプルグロー ──
-    elif item_type == 'DRILL':
-        glow_col = (100, 220, 255)
+    # ── 耕運機 / 完熟堆肥 / 除草：グロー ──
+    elif item_type in ('DRILL', 'COMPOST', 'WEEDER'):
+        glow_colors = {
+            'DRILL':   (100, 220, 255),
+            'COMPOST': (255, 180,  50),
+            'WEEDER':  (100, 240, 130),
+        }
+        glow_col = glow_colors[item_type]
         glow = pygame.Surface((size + 8, size + 8), pygame.SRCALPHA)
         for i, a in enumerate([50, 35, 20]):
             m = i * 2
@@ -775,7 +780,8 @@ def draw_cell(surface, px, py, color, size=CELL, alpha=255, item_type=None):
 
     # ── アイテムブロック：中央に記号 ──
     if item_type and size >= 16:
-        symbol = "★" if item_type == 'RAINBOW' else "耕"
+        sym_map = {'RAINBOW': '★', 'DRILL': '耕', 'COMPOST': '肥', 'WEEDER': '刈'}
+        symbol  = sym_map.get(item_type, '★')
         font   = _get_item_font(size)
         shd_s  = font.render(symbol, True, (0, 0, 0))
         shd_r  = shd_s.get_rect(center=(px + size//2 + 1, py + size//2 + 1))
@@ -981,19 +987,23 @@ class SevenBag:
 #  テトリミノクラス
 # =============================================================================
 
-ITEM_TYPES    = ['RAINBOW', 'DRILL']
-ITEM_CHANCE   = 0.15   # アイテム付与確率 15%
+ITEM_TYPES    = ['RAINBOW', 'DRILL', 'COMPOST', 'WEEDER']
+ITEM_CHANCE   = 0.18   # アイテム付与確率 18%
 
 # アイテムブロックの色（通常色に重ねて表示）
 ITEM_COLORS = {
     'RAINBOW': (255, 230,  60),   # 恵みの雨: 金色
     'DRILL':   ( 80, 220, 255),   # 耕運機: 水色
+    'COMPOST': (255, 175,  40),   # 完熟堆肥: 黄金アンバー
+    'WEEDER':  ( 80, 230, 110),   # 除草・草刈機: エメラルドグリーン
 }
 
 # アイテム表示名（農業テーマ）
 ITEM_DISPLAY = {
-    'RAINBOW': '恵みの雨',   # 虹色の雨で浄化
-    'DRILL':   '耕運機',     # 土を耕してブロックを破壊
+    'RAINBOW': '恵みの雨',     # 虹色の雨で浄化・行消去
+    'DRILL':   '耕運機',       # 土を耕してブロックを縦破壊
+    'COMPOST': '完熟堆肥',     # 豊作スコアボーナス＋ゾーン蓄積
+    'WEEDER':  '除草・草刈機', # 邪魔なガーベージを一掃
 }
 
 class Piece:
@@ -1485,6 +1495,7 @@ class Tetris:
         self.lock_timer     = 0
         if self.snd_zone and not self.bgm_muted:
             self.snd_zone.play()
+        self._js_se('zone')
         # BGM を低音量にしてゾーン感を演出
         if not _IN_BROWSER and not self.bgm_muted:
             pygame.mixer.music.set_volume(0.10)
@@ -1580,6 +1591,7 @@ class Tetris:
             self.garbage_pending = self._garbage_amount()
             if self.snd_garbage and not self.bgm_muted:
                 self.snd_garbage.play()
+            self._js_se('garbage')
 
         # ガーベージ実行
         if self.garbage_timer >= interval:
@@ -1610,6 +1622,7 @@ class Tetris:
         else:
             self.hold_kind, self.current = \
                 self.current.kind, Piece(self.hold_kind)
+        self._js_se('hold')
 
     # ---------- ゴースト位置 ----------
     def _ghost_dy(self):
@@ -1691,6 +1704,7 @@ class Tetris:
         if dy >= 3:
             self.shake_timer = max(self.shake_timer, SHAKE_HARDDROP)
             self.shake_mag   = max(self.shake_mag, 3)
+        self._js_se('drop')
         self._lock_piece()
 
     # ---------- ピース固定 ----------
@@ -1699,6 +1713,7 @@ class Tetris:
         self._pending_tspin = self._detect_tspin()
         item = self.current.item_type   # アイテム種別を保存
         if self.snd_lock and not self.bgm_muted: self.snd_lock.play()
+        self._js_se('lock')
         self.board.lock(self.current)
 
         # ── アイテム効果を発動 ──
@@ -1723,6 +1738,7 @@ class Tetris:
         self.stat_items_used += 1   # アイテム使用カウント
         if self.snd_item and not self.bgm_muted:
             self.snd_item.play()
+        self._js_se('item')
 
         if item == 'RAINBOW':
             # ── RAINBOW: ピースが含まれる行を強制消去 ──
@@ -1815,6 +1831,69 @@ class Tetris:
                                BOARD_Y + BOARD_H // 2,
                                text=label,
                                color=(80, 220, 255)))
+
+        elif item == 'COMPOST':
+            # ── COMPOST (完熟堆肥): 黄金の豊作ボーナス＋ゾーンゲージ蓄積 ──
+            for cx, cy in piece_cells:
+                px = BOARD_X + cx * CELL + CELL // 2
+                py = BOARD_Y + cy * CELL + CELL // 2
+                for _ in range(PARTICLE_PER_CELL * 2):
+                    self.particles.append(Particle(px, py, (255, 210, 60)))
+            bonus = 350 * len(piece_cells) * self.level
+            self.score += bonus
+            if not self.is_zone_active:
+                self.zone_gauge = min(ZONE_GAUGE_MAX, self.zone_gauge + 25.0)
+            self.shake_timer = max(self.shake_timer, 6)
+            self.shake_mag   = max(self.shake_mag, 4)
+            self.score_popups.append(
+                ScorePopup(BOARD_X + BOARD_W // 2,
+                           BOARD_Y + BOARD_H // 3,
+                           text=f"完熟堆肥・大豊作！ +{bonus:,}",
+                           color=(255, 200, 50)))
+
+        elif item == 'WEEDER':
+            # ── WEEDER (除草・草刈機): 盤面最下部のガーベージ/雑草を一掃 ──
+            garbage_rows = [r for r in range(ROWS)
+                            if any(self.board.grid[r][c] == GARBAGE_COLOR for c in range(COLS))]
+            target_rows = garbage_rows[-2:] if garbage_rows else []
+
+            if not target_rows:
+                bottom_occupied = [r for r in range(ROWS)
+                                   if any(self.board.grid[r][c] is not None for c in range(COLS))]
+                if bottom_occupied:
+                    target_rows = [bottom_occupied[-1]]
+
+            weeds_cleared = len(target_rows)
+            if target_rows:
+                for r in target_rows:
+                    for c in range(COLS):
+                        cell_col = self.board.grid[r][c]
+                        if cell_col:
+                            px = BOARD_X + c * CELL + CELL // 2
+                            py = BOARD_Y + r * CELL + CELL // 2
+                            for _ in range(PARTICLE_PER_CELL * 2):
+                                self.particles.append(Particle(px, py, (100, 240, 130)))
+                        self.board.grid[r][c] = None
+
+                new_grid = [row for row in self.board.grid if any(c is not None for c in row)]
+                for _ in range(ROWS - len(new_grid)):
+                    new_grid.insert(0, [None] * COLS)
+                self.board.grid = new_grid
+
+                self.garbage_pending = max(0, self.garbage_pending - weeds_cleared)
+                if self.garbage_pending == 0:
+                    self.garbage_warning = False
+                    self.garbage_timer   = 0
+
+            self.shake_timer = max(self.shake_timer, 8)
+            self.shake_mag   = max(self.shake_mag, 5)
+            bonus = 250 * max(1, weeds_cleared) * self.level
+            self.score += bonus
+            self.score_popups.append(
+                ScorePopup(BOARD_X + BOARD_W // 2,
+                           BOARD_Y + BOARD_H // 2,
+                           text=f"除草完了！ 草刈機 +{bonus:,}",
+                           color=(100, 240, 130)))
 
     # ---------- フラッシュ終了→実際の消去処理 ----------
     def _do_clear(self):
@@ -1979,10 +2058,12 @@ class Tetris:
             snd = self.snd_clear_cache[cleared][combo_idx]
             if snd and not self.bgm_muted:
                 snd.play()
+            self._js_se(f'clear{cleared}')
 
         # ── TETRIS! ファンファーレ（Tスピンなし 4ライン、B2B 問わず） ──
         if cleared == 4 and not tspin:
             self.tetris_timer = 120
+            self._js_se('tetris')
             if self.snd_tetris and not self.bgm_muted:
                 pygame.mixer.music.set_volume(0.15)
                 self.snd_tetris.play()
@@ -2017,6 +2098,7 @@ class Tetris:
                 self.last_rotated  = True
                 self._lock_reset_on_action()
                 if self.snd_rotate and not self.bgm_muted: self.snd_rotate.play()
+                self._js_se('rotate')
                 return
             self.current.x -= dx
             self.current.y -= dy
@@ -2052,21 +2134,35 @@ class Tetris:
         try:
             from js import window
             audio = window._bgmAudio
-            if audio is None:
-                return
-            if action == 'play':
-                audio.play()
-            elif action == 'stop':
-                audio.pause()
-                audio.currentTime = 0
-            elif action == 'pause':
-                audio.pause()
-            elif action == 'resume':
-                audio.play()
-            elif action == 'mute':
-                audio.volume = 0
+            if audio is not None:
+                if action == 'play':
+                    audio.play()
+                elif action == 'stop':
+                    audio.pause()
+                    audio.currentTime = 0
+                elif action == 'pause':
+                    audio.pause()
+                elif action == 'resume':
+                    audio.play()
+                elif action == 'mute':
+                    audio.volume = 0
+                elif action == 'unmute':
+                    audio.volume = 0.4
+            if action == 'mute':
+                window._seMuted = True
             elif action == 'unmute':
-                audio.volume = 0.4
+                window._seMuted = False
+        except Exception:
+            pass
+
+    # ---------- ブラウザ SE 再生（JavaScript Web Audio API 経由） ----------
+    def _js_se(self, se_type):
+        if not _IN_BROWSER or self.bgm_muted:
+            return
+        try:
+            from js import window
+            if hasattr(window, '_playSE'):
+                window._playSE(se_type)
         except Exception:
             pass
 
@@ -2241,6 +2337,7 @@ class Tetris:
                         self.last_rotated = False
                         self._lock_reset_on_action()
                         if self.snd_move and not self.bgm_muted: self.snd_move.play()
+                        self._js_se('move')
                 if event.key == pygame.K_RIGHT:
                     self.move_dir   = 1
                     self.move_timer = 0
@@ -2249,6 +2346,7 @@ class Tetris:
                         self.last_rotated = False
                         self._lock_reset_on_action()
                         if self.snd_move and not self.bgm_muted: self.snd_move.play()
+                        self._js_se('move')
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_DOWN:

@@ -228,6 +228,80 @@ __file__ = '/home/pyodide/tetris.py'
           console.warn('[BGM]', e);
         }
 
+        // ── Web Audio API によるシンセSEエンジン ──
+        let _actx = null;
+        function _getAudioContext() {
+          if (!_actx) {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (AudioCtx) _actx = new AudioCtx();
+          }
+          if (_actx && _actx.state === 'suspended') {
+            _actx.resume();
+          }
+          return _actx;
+        }
+
+        window._seMuted = false;
+        window._playSE = function(type) {
+          if (window._seMuted) return;
+          const ctx = _getAudioContext();
+          if (!ctx) return;
+          const now = ctx.currentTime;
+
+          function tone(freq, startT, dur, wave='sine', vol=0.15, endFreq=null) {
+            try {
+              const osc  = ctx.createOscillator();
+              const gain = ctx.createGain();
+              osc.type = wave;
+              osc.frequency.setValueAtTime(freq, startT);
+              if (endFreq) {
+                osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), startT + dur);
+              }
+              gain.gain.setValueAtTime(vol, startT);
+              gain.gain.exponentialRampToValueAtTime(0.0001, startT + dur);
+              osc.connect(gain);
+              gain.connect(ctx.destination);
+              osc.start(startT);
+              osc.stop(startT + dur + 0.02);
+            } catch(e) { /* ignore */ }
+          }
+
+          if (type === 'move') {
+            tone(260, now, 0.035, 'triangle', 0.08, 180);
+          } else if (type === 'rotate') {
+            tone(380, now, 0.055, 'sine', 0.12, 620);
+          } else if (type === 'lock') {
+            tone(160, now, 0.08, 'triangle', 0.18, 70);
+          } else if (type === 'drop') {
+            tone(320, now, 0.10, 'triangle', 0.22, 50);
+          } else if (type === 'hold') {
+            tone(480, now, 0.06, 'sine', 0.12, 720);
+          } else if (type === 'clear1') {
+            tone(523, now, 0.14, 'triangle', 0.16);
+            tone(659, now + 0.03, 0.14, 'triangle', 0.16);
+          } else if (type === 'clear2') {
+            tone(523, now, 0.16, 'triangle', 0.18);
+            tone(659, now + 0.03, 0.16, 'triangle', 0.18);
+            tone(784, now + 0.06, 0.18, 'triangle', 0.18);
+          } else if (type === 'clear3') {
+            tone(587, now, 0.18, 'triangle', 0.20);
+            tone(740, now + 0.03, 0.18, 'triangle', 0.20);
+            tone(880, now + 0.06, 0.20, 'triangle', 0.20);
+          } else if (type === 'clear4' || type === 'tetris') {
+            [523, 659, 784, 1046, 1318].forEach((f, idx) => {
+              tone(f, now + idx * 0.05, 0.22, 'triangle', 0.22);
+            });
+          } else if (type === 'item') {
+            [659, 880, 1174, 1568].forEach((f, idx) => {
+              tone(f, now + idx * 0.04, 0.18, 'sine', 0.16);
+            });
+          } else if (type === 'zone') {
+            tone(280, now, 0.25, 'sine', 0.20, 1100);
+          } else if (type === 'garbage') {
+            tone(90, now, 0.20, 'sawtooth', 0.15, 45);
+          }
+        };
+
         window._pendingKeys     = [];
         window._pendingKeyTypes = [];
         // pygame-ce 2.x (SDL2) のキーコード。矢印・Shift は SDL2 値を使用
