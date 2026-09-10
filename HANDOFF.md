@@ -23,8 +23,6 @@ agri-tetris/
 ├── テトリス  重音テトSV.mp3 … オリジナルBGM（重音テトSV版テトリスBGM）
 ├── font/
 │   └── NotoSansJP-Regular.ttf … 日本語表示用フォント
-├── assets/
-│   └── images/           … 農業テーマ用画像素材（きゅうり、日向夏、マンゴー、ナス、トマト、農家等計12点）
 ├── make_icon.py          … Pillowを使用した tetris.ico 生成スクリプト
 ├── make_shortcut.bat     … デスクトップに起動ショートカットを作成するバッチ
 ├── make_shortcut.ps1     … ショートカット作成PowerShellスクリプト
@@ -75,23 +73,18 @@ agri-tetris/
 | キー | 動作 |
 |---|---|
 | `←` / `→` | 左右移動（長押しでDAS連続移動） |
-| `↑` | 右回転（時計回り） |
+| `↑` / `X` | 右回転（時計回り / SRS） |
+| `Z` | 左回転（反時計回り / SRS） |
 | `↓` | ソフトドロップ（通常より高速落下） |
 | `Space` | ハードドロップ（即時着地＆ロック） |
 | `C` / `Shift` | ホールド（ミノのキープ） |
 | `Tab` | DAS / ARR 速度プリセット切り替え |
+| `Enter` | ゾーン発動（ゲージ満タン時） |
+| `M` | BGMミュート切替 |
 | `P` | 一時停止（ポーズ） |
-| `R` | リスタート |
+| `R` | タイトルへ戻る / リスタート |
 
 ※詳しい操作解説・テクニックは `tetris_manual.html` をブラウザで開いて確認できます。
-
-## 素材ファイル（assets/images）について
-
-`assets/images/` には以下の農業テーマ用オリジナル画像（PNG形式）が収録されています。
-- 野菜・果物: `Cucumber.png`（きゅうり）, `Mango.png`（マンゴー）, `Hyuganatsu.png`（日向夏）, `tomato.png`（トマト）, `eggplant.png`（ナス）, `kinkan.png`（金柑）, `redbellpepper.png`（赤パプリカ）
-- キャラクター・背景: `farmer.png`, `farmerfight.png`, `stage1_bg.png`, `44break.png`, `88break.png`
-
-これらはブロックのスキン化、背景演出、カットインアニメーションなどの機能拡張にそのまま利用可能です。
 
 ## 他AI・開発者向けの開発・修正ルール
 

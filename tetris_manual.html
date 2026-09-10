@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>TETRIS 説明書</title>
+<title>大収穫！ 農業テトリス 説明書</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&display=swap');
 
@@ -62,9 +62,9 @@
     box-shadow: 0 2px 6px rgba(0,0,0,.5);
   }
   .cover h1 {
-    font-size: 52px;
+    font-size: 40px;
     font-weight: 900;
-    letter-spacing: 12px;
+    letter-spacing: 6px;
     color: #fff;
     text-shadow: 0 0 30px rgba(58,143,255,.6), 0 4px 16px rgba(0,0,0,.8);
     margin-bottom: 8px;
@@ -361,9 +361,9 @@
       <div class="blk" style="background:#a000f0"></div>
     </div>
   </div>
-  <h1>TETRIS</h1>
-  <div class="cover-sub">Complete Game Manual</div>
-  <div class="cover-badge">Pygame Edition &nbsp;|&nbsp; Python 3</div>
+  <h1>大収穫！ 農業テトリス</h1>
+  <div class="cover-sub">Modern Hybrid Tetris Manual</div>
+  <div class="cover-badge">Pygame &amp; WebAssembly Edition &nbsp;|&nbsp; Python 3</div>
 </div>
 
 <div class="container">
@@ -373,18 +373,19 @@
   <div class="section-title">Section 01</div>
   <h2>操作方法</h2>
   <div class="panel">
-    <div class="panel-title">キーボード</div>
+    <div class="panel-title">キーボード操作一覧</div>
     <div class="key-grid">
-      <div class="key-row"><span class="key">← →</span><span class="key-desc">左右移動</span></div>
-      <div class="key-row"><span class="key">↓</span><span class="key-desc">ソフトドロップ（ゆっくり落とす）</span></div>
-      <div class="key-row"><span class="key">↑</span><span class="key-desc">時計回りに回転（SRS）</span></div>
-      <div class="key-row"><span class="key">Space</span><span class="key-desc">ハードドロップ（即着地）</span></div>
-      <div class="key-row"><span class="key">C</span><span class="key-desc">ホールド（ピースを保存）</span></div>
-      <div class="key-row"><span class="key">Shift</span><span class="key-desc">ホールド（C と同じ）</span></div>
+      <div class="key-row"><span class="key">← →</span><span class="key-desc">左右移動（長押しでDAS連続移動）</span></div>
+      <div class="key-row"><span class="key">↓</span><span class="key-desc">ソフトドロップ（通常より高速落下）</span></div>
+      <div class="key-row"><span class="key">↑ / X</span><span class="key-desc">時計回りに回転（SRS 右回転）</span></div>
+      <div class="key-row"><span class="key">Z</span><span class="key-desc">反時計回りに回転（SRS 左回転）</span></div>
+      <div class="key-row"><span class="key">Space</span><span class="key-desc">ハードドロップ（即着地＆ロック）</span></div>
+      <div class="key-row"><span class="key">C / Shift</span><span class="key-desc">ホールド（ピースを保存）</span></div>
+      <div class="key-row"><span class="key">Tab</span><span class="key-desc">DAS / ARR 操作感切替（NORMAL / FAST / PRO）</span></div>
       <div class="key-row"><span class="key">Enter</span><span class="key-desc">ゾーン発動（ゲージ満タン時）</span></div>
       <div class="key-row"><span class="key">P</span><span class="key-desc">ポーズ / 再開</span></div>
       <div class="key-row"><span class="key">M</span><span class="key-desc">BGM ミュート切替</span></div>
-      <div class="key-row"><span class="key">R</span><span class="key-desc">タイトルへ戻る（BGM 停止）</span></div>
+      <div class="key-row"><span class="key">R</span><span class="key-desc">タイトルへ戻る / リスタート</span></div>
     </div>
   </div>
   <p>ソフトドロップ中は 1 マス落下ごとに <span class="pts">+1 点</span>が加算されます。<br>

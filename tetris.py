@@ -98,17 +98,29 @@ DAS_PRESET_ORDER = ['NORMAL', 'FAST', 'PRO']   # Tab で循環する順序
 # =============================================================================
 
 SRS_KICKS_JLSTZ = {
+    # 時計回り (CW)
     (0, 1): [( 0, 0), (-1, 0), (-1,-1), ( 0, 2), (-1, 2)],
     (1, 2): [( 0, 0), ( 1, 0), ( 1, 1), ( 0,-2), ( 1,-2)],
     (2, 3): [( 0, 0), ( 1, 0), ( 1,-1), ( 0, 2), ( 1, 2)],
     (3, 0): [( 0, 0), (-1, 0), (-1, 1), ( 0,-2), (-1,-2)],
+    # 反時計回り (CCW)
+    (0, 3): [( 0, 0), ( 1, 0), ( 1, 1), ( 0,-2), ( 1,-2)],
+    (3, 2): [( 0, 0), (-1, 0), (-1,-1), ( 0, 2), (-1, 2)],
+    (2, 1): [( 0, 0), (-1, 0), (-1, 1), ( 0,-2), (-1,-2)],
+    (1, 0): [( 0, 0), ( 1, 0), ( 1,-1), ( 0, 2), ( 1, 2)],
 }
 
 SRS_KICKS_I = {
+    # 時計回り (CW)
     (0, 1): [( 0, 0), (-2, 0), ( 1, 0), (-2,-1), ( 1, 2)],
     (1, 2): [( 0, 0), (-1, 0), ( 2, 0), (-1, 2), ( 2,-1)],
     (2, 3): [( 0, 0), ( 2, 0), (-1, 0), ( 2, 1), (-1,-2)],
     (3, 0): [( 0, 0), ( 1, 0), (-2, 0), ( 1,-2), (-2, 1)],
+    # 反時計回り (CCW)
+    (0, 3): [( 0, 0), (-1, 0), ( 2, 0), (-1, 2), ( 2,-1)],
+    (3, 2): [( 0, 0), (-2, 0), ( 1, 0), (-2,-1), ( 1, 2)],
+    (2, 1): [( 0, 0), ( 1, 0), (-2, 0), ( 1,-2), (-2, 1)],
+    (1, 0): [( 0, 0), ( 2, 0), (-1, 0), ( 2, 1), (-1,-2)],
 }
 
 # ハイスコア保存先
@@ -998,8 +1010,14 @@ class Piece:
             self.color = ITEM_COLORS[item_type]
 
     def rotate(self):
+        """時計回り（CW）回転"""
         n = len(self.shape)
         return [[self.shape[n-1-j][i] for j in range(n)] for i in range(n)]
+
+    def rotate_ccw(self):
+        """反時計回り（CCW）回転"""
+        n = len(self.shape)
+        return [[self.shape[j][n-1-i] for j in range(n)] for i in range(n)]
 
     def cells(self, shape=None, dx=0, dy=0):
         s = shape if shape is not None else self.shape
@@ -1976,11 +1994,11 @@ class Tetris:
                     threading.Thread(target=_restore, daemon=True).start()
 
     # ---------- 回転（ウォールキック）----------
-    def _try_rotate(self):
-        """SRS (Super Rotation System) ウォールキック付き時計回り回転"""
-        rotated  = self.current.rotate()
+    def _try_rotate(self, ccw=False):
+        """SRS (Super Rotation System) ウォールキック付き回転（ccw=True で反時計回り）"""
+        rotated  = self.current.rotate_ccw() if ccw else self.current.rotate()
         from_rot = self.current.rot
-        to_rot   = (from_rot + 1) % 4
+        to_rot   = (from_rot - 1) % 4 if ccw else (from_rot + 1) % 4
 
         # ピース種別に応じたキックテーブルを選択（O は回転不要）
         if self.current.kind == 'I':
@@ -2204,8 +2222,11 @@ class Tetris:
                 if event.key in (pygame.K_RETURN, pygame.K_KP_ENTER):
                     if self.zone_gauge >= ZONE_GAUGE_MAX and not self.is_zone_active:
                         self._start_zone()
-                if event.key == pygame.K_UP:
-                    self._try_rotate()
+                # 回転操作: ↑ または X で時計回り、Z で反時計回り
+                if event.key in (pygame.K_UP, pygame.K_x):
+                    self._try_rotate(ccw=False)
+                if event.key == pygame.K_z:
+                    self._try_rotate(ccw=True)
                 if event.key == pygame.K_SPACE:
                     self._hard_drop()
                 if event.key == pygame.K_DOWN:
@@ -2690,21 +2711,19 @@ class Tetris:
         # 操作ガイド
         hints = [
             "C / Shift : HOLD",
-            "↑  : 回転",
-            "↓  : 加速落下",
-            "Space : 即落下",
-            "P  : ポーズ",
-            "R  : リスタート",
-            "M  : ミュート",
+            "↑ / X : 右回転   Z : 左回転",
+            "↓ : 加速落下     Space : 即落下",
+            "Enter : ZONE    Tab : 操作感",
+            "P : ポーズ      R : リスタート",
         ]
         for i, h in enumerate(hints):
             t = self.f_sm.render(h, True, th['c_dim'])
-            self.screen.blit(t, (rx + 6, BOARD_Y + 486 + i*22))
+            self.screen.blit(t, (rx + 6, BOARD_Y + 486 + i*20))
 
         # ミュート中アイコン表示
         if self.bgm_muted:
-            mute_surf = self.f_sm.render("🔇 MUTE", True, (220, 80, 80))
-            self.screen.blit(mute_surf, (rx + 6, BOARD_Y + 486 + len(hints)*22 + 6))
+            mute_surf = self.f_sm.render("🔇 MUTE (M)", True, (220, 80, 80))
+            self.screen.blit(mute_surf, (rx + 6, BOARD_Y + 486 + len(hints)*20 + 4))
 
     # --- TETRIS! バナー ---
     def _draw_tetris_banner(self):
@@ -3041,8 +3060,8 @@ class Tetris:
 
         # 7. 操作ガイド（日本語対応フォント使用）
         controls = [
-            "← →: 移動   ↑: 回転   Space: 即落下",
-            "C / Shift: ホールド   Enter: ZONE発動   P: ポーズ",
+            "← →: 移動   ↑ / X: 右回転   Z: 左回転   Space: 即落下",
+            "C / Shift: ホールド   Enter: ZONE発動   M: 消音   P: ポーズ",
         ]
         for i, line in enumerate(controls):
             ctrl_s = self.f_jp_sm.render(line, True, (140, 140, 165))
