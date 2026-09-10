@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TETRIS 説明書</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&display=swap');
+
+  :root {
+    --bg:        #0a0e24;
+    --bg2:       #111830;
+    --accent:    #3a8fff;
+    --gold:      #ffc32d;
+    --rainbow:   #ffd700;
+    --drill:     #50dcff;
+    --zone:      #64d2ff;
+    --garbage:   #8a9aaa;
+    --danger:    #ff4444;
+    --text:      #d0e4ff;
+    --dim:       #6878a8;
+    --border:    #2a4080;
+    --panel:     #0e1830;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic Pro', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    font-size: 14px;
+  }
+
+  /* ========== COVER ========== */
+  .cover {
+    background: linear-gradient(160deg, #06082a 0%, #0d1840 50%, #06082a 100%);
+    border-bottom: 2px solid var(--border);
+    text-align: center;
+    padding: 60px 20px 50px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 60%, rgba(58,143,255,.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cover-blocks {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-bottom: 28px;
+  }
+  .cover-col { display: flex; flex-direction: column; gap: 4px; align-items: center; }
+  .blk {
+    width: 28px; height: 28px;
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.5);
+  }
+  .cover h1 {
+    font-size: 52px;
+    font-weight: 900;
+    letter-spacing: 12px;
+    color: #fff;
+    text-shadow: 0 0 30px rgba(58,143,255,.6), 0 4px 16px rgba(0,0,0,.8);
+    margin-bottom: 8px;
+  }
+  .cover-sub {
+    font-size: 13px;
+    color: var(--dim);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .cover-badge {
+    display: inline-block;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 5px 18px;
+    font-size: 12px;
+    color: var(--dim);
+    letter-spacing: 1px;
+  }
+
+  /* ========== LAYOUT ========== */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 60px;
+  }
+
+  /* ========== SECTION ========== */
+  .section {
+    margin-top: 48px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  h2 {
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 16px;
+  }
+  h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--gold);
+    margin: 20px 0 8px;
+  }
+  p { margin-bottom: 10px; color: var(--text); }
+
+  /* ========== PANEL ========== */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .panel-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  /* ========== CONTROLS ========== */
+  .key-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 8px;
+  }
+  .key-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 10px;
+    background: rgba(255,255,255,.03);
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,.05);
+  }
+  .key {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #1a2550;
+    border: 1px solid #3a5090;
+    border-bottom: 3px solid #1a2550;
+    border-radius: 5px;
+    padding: 3px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #a0c0ff;
+    min-width: 36px;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,.4);
+    flex-shrink: 0;
+  }
+  .key-desc { font-size: 13px; color: var(--text); }
+
+  /* ========== TABLE ========== */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  th {
+    background: rgba(58,143,255,.12);
+    color: var(--accent);
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 9px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 9px 12px;
+    border-bottom: 1px solid rgba(255,255,255,.05);
+    vertical-align: middle;
+  }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,.02); }
+
+  /* ========== BADGE ========== */
+  .badge {
+    display: inline-block;
+    border-radius: 4px;
+    padding: 2px 8px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1px;
+  }
+  .badge-blue   { background: rgba(58,143,255,.18); color: #6ab0ff; border: 1px solid rgba(58,143,255,.3); }
+  .badge-gold   { background: rgba(255,195,45,.15); color: var(--gold); border: 1px solid rgba(255,195,45,.3); }
+  .badge-zone   { background: rgba(100,210,255,.15); color: var(--zone); border: 1px solid rgba(100,210,255,.3); }
+  .badge-danger { background: rgba(255,68,68,.15); color: #ff8888; border: 1px solid rgba(255,68,68,.3); }
+  .badge-item   { background: rgba(255,215,0,.15); color: var(--rainbow); border: 1px solid rgba(255,215,0,.3); }
+  .badge-drill  { background: rgba(80,220,255,.15); color: var(--drill); border: 1px solid rgba(80,220,255,.3); }
+  .badge-gray   { background: rgba(138,154,170,.15); color: var(--garbage); border: 1px solid rgba(138,154,170,.3); }
+
+  /* ========== ITEM BLOCKS ========== */
+  .item-card {
+    display: flex;
+    gap: 18px;
+    padding: 18px;
+    background: var(--panel);
+    border-radius: 8px;
+    margin-bottom: 12px;
+  }
+  .item-icon {
+    width: 52px; height: 52px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    font-weight: 900;
+  }
+  .item-icon-rainbow {
+    background: linear-gradient(135deg, #ff4444, #ff9900, #ffee00, #44ff44, #44aaff, #aa44ff);
+    box-shadow: 0 0 16px rgba(255,215,0,.4);
+  }
+  .item-icon-drill {
+    background: linear-gradient(135deg, #1a6080, #50dcff);
+    box-shadow: 0 0 16px rgba(80,220,255,.4);
+  }
+  .item-body h3 { margin-top: 0; }
+  .item-body p  { margin-bottom: 0; font-size: 13px; }
+
+  /* ========== GAUGE BAR ========== */
+  .gauge-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .gauge-label { width: 120px; font-size: 13px; color: var(--dim); flex-shrink: 0; }
+  .gauge-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,.08);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .gauge-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+  }
+  .gauge-val { width: 44px; text-align: right; font-size: 12px; color: var(--dim); }
+
+  /* ========== THEME CARDS ========== */
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+  .theme-card {
+    border-radius: 7px;
+    padding: 14px 16px;
+    border: 1px solid;
+    font-size: 13px;
+  }
+  .theme-name { font-weight: 700; font-size: 15px; margin-bottom: 3px; }
+  .theme-level { font-size: 11px; opacity: .7; margin-bottom: 6px; }
+  .theme-desc  { font-size: 12px; opacity: .8; }
+
+  /* ========== TIPS ========== */
+  .tip {
+    display: flex;
+    gap: 12px;
+    padding: 13px 16px;
+    background: rgba(58,143,255,.06);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 6px 6px 0;
+    margin-bottom: 10px;
+    font-size: 13px;
+  }
+  .tip-num {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--accent);
+    opacity: .6;
+    flex-shrink: 0;
+    line-height: 1.4;
+  }
+
+  /* ========== SCORE TABLE ========== */
+  .pts { color: var(--gold); font-weight: 700; }
+  .pts-b2b { color: #ff9900; font-weight: 700; }
+
+  /* ========== DIVIDER ========== */
+  hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+
+  /* ========== FOOTER ========== */
+  .footer {
+    text-align: center;
+    padding: 30px;
+    font-size: 12px;
+    color: var(--dim);
+    border-top: 1px solid var(--border);
+    margin-top: 48px;
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 600px) {
+    .cover h1 { font-size: 36px; letter-spacing: 6px; }
+    .theme-grid { grid-template-columns: 1fr; }
+    .key-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== COVER ===== -->
+<div class="cover">
+  <div class="cover-blocks">
+    <div class="cover-col">
+      <div class="blk" style="background:#00dcf0"></div>
+      <div class="blk" style="background:#00dcf0"></div>
+    </div>
+    <div class="cover-col">
+      <div class="blk" style="background:#f0a000"></div>
+      <div class="blk" style="background:#a000f0"></div>
+      <div class="blk" style="background:#a000f0"></div>
+      <div class="blk" style="background:#a000f0"></div>
+    </div>
+    <div class="cover-col">
+      <div class="blk" style="background:#00f050"></div>
+      <div class="blk" style="background:#f00030"></div>
+      <div class="blk" style="background:#f00030"></div>
+      <div class="blk" style="background:#2050f0"></div>
+      <div class="blk" style="background:#2050f0"></div>
+    </div>
+    <div class="cover-col">
+      <div class="blk" style="background:#f0e000"></div>
+      <div class="blk" style="background:#f0e000"></div>
+      <div class="blk" style="background:#00f050"></div>
+      <div class="blk" style="background:#2050f0"></div>
+    </div>
+    <div class="cover-col">
+      <div class="blk" style="background:#f0a000"></div>
+      <div class="blk" style="background:#f0a000"></div>
+      <div class="blk" style="background:#a000f0"></div>
+    </div>
+  </div>
+  <h1>TETRIS</h1>
+  <div class="cover-sub">Complete Game Manual</div>
+  <div class="cover-badge">Pygame Edition &nbsp;|&nbsp; Python 3</div>
+</div>
+
+<div class="container">
+
+<!-- ===== 操作方法 ===== -->
+<div class="section">
+  <div class="section-title">Section 01</div>
+  <h2>操作方法</h2>
+  <div class="panel">
+    <div class="panel-title">キーボード</div>
+    <div class="key-grid">
+      <div class="key-row"><span class="key">← →</span><span class="key-desc">左右移動</span></div>
+      <div class="key-row"><span class="key">↓</span><span class="key-desc">ソフトドロップ（ゆっくり落とす）</span></div>
+      <div class="key-row"><span class="key">↑</span><span class="key-desc">時計回りに回転（SRS）</span></div>
+      <div class="key-row"><span class="key">Space</span><span class="key-desc">ハードドロップ（即着地）</span></div>
+      <div class="key-row"><span class="key">C</span><span class="key-desc">ホールド（ピースを保存）</span></div>
+      <div class="key-row"><span class="key">Shift</span><span class="key-desc">ホールド（C と同じ）</span></div>
+      <div class="key-row"><span class="key">Enter</span><span class="key-desc">ゾーン発動（ゲージ満タン時）</span></div>
+      <div class="key-row"><span class="key">P</span><span class="key-desc">ポーズ / 再開</span></div>
+      <div class="key-row"><span class="key">M</span><span class="key-desc">BGM ミュート切替</span></div>
+      <div class="key-row"><span class="key">R</span><span class="key-desc">タイトルへ戻る（BGM 停止）</span></div>
+    </div>
+  </div>
+  <p>ソフトドロップ中は 1 マス落下ごとに <span class="pts">+1 点</span>が加算されます。<br>
+  ハードドロップはソフトドロップより速く落とせますが得点加算はありません。</p>
+</div>
+
+<hr>
+
+<!-- ===== 基本ルール ===== -->
+<div class="section">
+  <div class="section-title">Section 02</div>
+  <h2>基本ルール</h2>
+
+  <p>7 種類のテトリミノ（I / O / T / S / Z / J / L）をボードに積み重ね、横一列を埋めると「ライン消去」が発生します。
+  ライン消去でスコアが加算され、10 ライン消去ごとにレベルが上がります。ブロックがボード最上段を超えると<span style="color:var(--danger)">ゲームオーバー</span>です。</p>
+
+  <h3>7 バッグシステム</h3>
+  <p>ピースは 7 種類を 1 セットにしてランダムに並べた「バッグ」から順番に出てきます。同じピースが極端に偏って出ることはありません。</p>
+
+  <h3>ゴーストブロック</h3>
+  <p>現在のピースが落下すると着地する位置を半透明の枠で示します。着地位置の確認に活用しましょう。</p>
+
+  <h3>ホールド</h3>
+  <p><span class="key">C</span> または <span class="key">Shift</span> を押すと現在のピースをホールドに保存できます。ホールドは 1 ピース設置するごとに 1 回だけ使用可能です（連続使用不可）。</p>
+
+  <h3>ロックディレイ</h3>
+  <p>ピースが着地しても 0.5 秒間（30 フレーム）はロックされません。この間に移動・回転することで猶予を延長できます（最大 15 回まで延長可能）。</p>
+</div>
+
+<hr>
+
+<!-- ===== スコア ===== -->
+<div class="section">
+  <div class="section-title">Section 03</div>
+  <h2>スコアシステム</h2>
+
+  <div class="panel">
+    <div class="panel-title">基本点（× レベル）</div>
+    <table>
+      <thead><tr><th>消去ライン数</th><th>名称</th><th>基礎点</th></tr></thead>
+      <tbody>
+        <tr><td>1 ライン</td><td>SINGLE</td><td class="pts">100</td></tr>
+        <tr><td>2 ライン</td><td>DOUBLE</td><td class="pts">300</td></tr>
+        <tr><td>3 ライン</td><td>TRIPLE</td><td class="pts">500</td></tr>
+        <tr><td>4 ライン</td><td>TETRIS</td><td class="pts">800</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">T-Spin ボーナス（× レベル）</div>
+    <table>
+      <thead><tr><th>種別</th><th>0 ライン</th><th>1 ライン</th><th>2 ライン</th><th>3 ライン</th></tr></thead>
+      <tbody>
+        <tr><td>T-SPIN</td><td class="pts">400</td><td class="pts">800</td><td class="pts">1,200</td><td class="pts">1,600</td></tr>
+        <tr><td>T-SPIN MINI</td><td class="pts">100</td><td class="pts">200</td><td class="pts">400</td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Back-to-Back（B2B）ボーナス</h3>
+  <p>テトリス（4 ライン消し）または T-Spin 消去を <strong>連続</strong> して決めると、基礎点が <span class="pts-b2b">1.5 倍</span>になります。
+  普通のライン消去（1〜3 ライン・T-Spin なし）を行うと B2B リセットされます。</p>
+
+  <h3>コンボボーナス</h3>
+  <p>ライン消去を連続すると「コンボ」が発生し、<span class="pts">50 × コンボ数 × レベル</span> の追加点が入ります。
+  ライン消去なしでピースを設置するとコンボはリセットされます。</p>
+
+  <div class="panel">
+    <div class="panel-title">スコアポップアップの見方</div>
+    <p style="font-size:13px">ライン消去時、ボード上に獲得点数が数字でふわっと浮かび上がります。<br>
+    バナーテキスト（例：<span style="color:var(--gold)">BACK-TO-BACK T-SPIN DOUBLE!</span>）もあわせて表示されます。</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===== T-SPIN ===== -->
+<div class="section">
+  <div class="section-title">Section 04</div>
+  <h2>T-Spin（ティースピン）</h2>
+
+  <p>T ピースを回転させながら隙間に差し込む上級テクニックです。判定条件は以下のとおりです。</p>
+
+  <div class="panel">
+    <table>
+      <thead><tr><th>判定</th><th>条件</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="badge badge-gold">T-SPIN</span></td>
+          <td>最後の操作が回転であり、T ピースの 4 隅のうち <strong>3 つ以上</strong>にブロックまたは壁がある</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-blue">T-SPIN MINI</span></td>
+          <td>最後の操作が回転であり、T の正面側 2 隅のどちらかが空いている</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>T-Spin は高得点かつ B2B の対象になるため、積極的に狙う価値があります。</p>
+</div>
+
+<hr>
+
+<!-- ===== SRS ===== -->
+<div class="section">
+  <div class="section-title">Section 05</div>
+  <h2>SRS（スーパーローテーションシステム）</h2>
+
+  <p>回転時に通常の位置では引っかかる場合でも、最大 4 段階の「ウォールキック」を試みて回転できる位置を探します。
+  これにより、壁際や隙間での高度な回転操作（T-Spin など）が可能になります。</p>
+  <p>I ピースには専用のウォールキックテーブルが適用されます。O ピースは回転しません。</p>
+</div>
+
+<hr>
+
+<!-- ===== ITEMS ===== -->
+<div class="section">
+  <div class="section-title">Section 06</div>
+  <h2>アイテムブロック</h2>
+
+  <p>通常のピースが <strong>15% の確率</strong>で特殊なアイテムブロックになります。アイテムブロックはネクスト表示の時点では分からず、設置した瞬間に効果が発動します。</p>
+
+  <div class="item-card">
+    <div class="item-icon item-icon-rainbow">★</div>
+    <div class="item-body">
+      <h3><span class="badge badge-item">RAINBOW</span> &nbsp;列全消去</h3>
+      <p>設置した瞬間、そのピースが含まれる<strong>全ての行を強制消去</strong>します（揃っていなくても消去）。
+      消去行数 × 200 × レベルのボーナスが加算されます。<br>
+      ブロック色がリアルタイムにレインボーサイクルし、キラキラと輝いて目立ちます。</p>
+    </div>
+  </div>
+
+  <div class="item-card">
+    <div class="item-icon item-icon-drill" style="color:#0a2a3a; font-size:26px; font-weight:900">D</div>
+    <div class="item-body">
+      <h3><span class="badge badge-drill">DRILL</span> &nbsp;貫通破壊</h3>
+      <p>設置した瞬間、ピース各列の<strong>真下 2〜3 マスのブロックを破壊</strong>し、上のブロックが落下します。
+      破壊数 × 80 × レベルのボーナスが加算されます。<br>
+      <span style="color:var(--garbage)">ガーベージ行（お邪魔行）</span>を破壊した場合は通常の <strong>3 倍</strong>のボーナスになり、予約ガーベージもキャンセルされます。</p>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===== ZONE ===== -->
+<div class="section">
+  <div class="section-title">Section 07</div>
+  <h2>ゾーンシステム</h2>
+
+  <p>時間を止めて連鎖を狙う特殊モードです。大量のラインを一度に消去して爆発的なスコアを狙えます。</p>
+
+  <h3>ゾーンゲージの溜め方</h3>
+  <div class="panel">
+    <div class="gauge-row">
+      <span class="gauge-label">1 ライン消去</span>
+      <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:18%; background:var(--zone)"></div></div>
+      <span class="gauge-val" style="color:var(--zone)">+18%</span>
+    </div>
+    <div class="gauge-row">
+      <span class="gauge-label">2 ライン消去</span>
+      <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:36%; background:var(--zone)"></div></div>
+      <span class="gauge-val" style="color:var(--zone)">+36%</span>
+    </div>
+    <div class="gauge-row">
+      <span class="gauge-label">3 ライン消去</span>
+      <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:54%; background:var(--zone)"></div></div>
+      <span class="gauge-val" style="color:var(--zone)">+54%</span>
+    </div>
+    <div class="gauge-row">
+      <span class="gauge-label">4 ライン消去</span>
+      <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:72%; background:var(--zone)"></div></div>
+      <span class="gauge-val" style="color:var(--zone)">+72%</span>
+    </div>
+    <div class="gauge-row">
+      <span class="gauge-label">T-Spin（追加）</span>
+      <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:15%; background:#aa88ff"></div></div>
+      <span class="gauge-val" style="color:#aa88ff">+15%</span>
+    </div>
+  </div>
+
+  <h3>ゾーン発動（<span class="key" style="display:inline-flex; font-size:11px;">Enter</span>）</h3>
+  <p>ゲージが 100% になったら <span class="key">Enter</span> キーで発動します。<br>
+  発動中は<strong>ピースの自動落下・自動ロックが停止</strong>します（手動操作は有効）。<br>
+  ライン消去してもその場では消えず、<span style="color:var(--zone)">青く光るゾーン行</span>に変換されてボード内に残ります。</p>
+
+  <h3>ゾーン終了（約 14 秒後）</h3>
+  <p>ゾーン時間が終了した瞬間、蓄積された全ゾーン行が一括消去され、残ったブロックが重力で下に詰まります。
+  消去ライン数に応じた超高額ボーナスが付与されます。</p>
+
+  <div class="panel">
+    <div class="panel-title">ゾーン終了ボーナス（× レベル）</div>
+    <table>
+      <thead><tr><th>蓄積ライン</th><th>称号</th><th>ボーナス計算</th></tr></thead>
+      <tbody>
+        <tr><td>1〜3</td><td>ZONE LINE!</td><td class="pts">N² × 450</td></tr>
+        <tr><td>4〜5</td><td>ZONE CLEAR!</td><td class="pts">N² × 450</td></tr>
+        <tr><td>6〜8</td><td>ZONE TETRIS!</td><td class="pts">N² × 450</td></tr>
+        <tr><td>9〜11</td><td>ZONE ULTRA!</td><td class="pts">N² × 450</td></tr>
+        <tr><td>12〜14</td><td>ZONE MASTER!</td><td class="pts">N² × 450</td></tr>
+        <tr><td>15〜17</td><td>ZONE PERFECT!</td><td class="pts">N² × 450</td></tr>
+        <tr><td>18 以上</td><td style="color:var(--gold); font-weight:900">ULTIMATRIS!!</td><td class="pts">N² × 450</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:12px; color:var(--dim); margin-top:6px">N = 蓄積ライン数。例：18ライン → 18² × 450 × レベル = 145,800 × レベル</p>
+  </div>
+
+  <p>ゾーン中はガーベージ行のせり上がりが一時停止します。ピンチのときに活用しましょう。</p>
+</div>
+
+<hr>
+
+<!-- ===== GARBAGE ===== -->
+<div class="section">
+  <div class="section-title">Section 08</div>
+  <h2>ガーベージシステム（お邪魔行）</h2>
+
+  <p>一定時間ごとに<span style="color:var(--garbage)">グレーのお邪魔行（ガーベージ）</span>がボード下部からせり上がってきます。
+  各行には 1 列だけ穴が空いており、その穴を使ってブロックを落とし込んでいく必要があります。</p>
+
+  <h3>発生タイミング（レベルスケーリング）</h3>
+  <div class="panel">
+    <table>
+      <thead><tr><th>レベル</th><th>発生間隔</th><th>行数</th></tr></thead>
+      <tbody>
+        <tr><td>1〜4</td><td>30 秒</td><td>1 行</td></tr>
+        <tr><td>5〜9</td><td>25 秒</td><td>1 行</td></tr>
+        <tr><td>10〜14</td><td>20 秒</td><td>2 行</td></tr>
+        <tr><td>15〜19</td><td>15 秒</td><td>2 行</td></tr>
+        <tr><td>20 以上</td><td>10 秒（最短）</td><td>3 行</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>警告演出</h3>
+  <p>せり上がる <strong>3 秒前</strong>に「ガガガッ」という重低音の警告音が鳴り、ボード右側に<span style="color:var(--danger)">赤い警告バー</span>と「<span style="color:var(--danger); font-weight:bold">！</span>」マークが点滅表示されます。バーの高さが発生までの残り時間を示しています。</p>
+
+  <h3>ガーベージの相殺</h3>
+  <p>警告中（赤バー表示中）に以下のアクションを決めると、予約済みのガーベージを<span style="color:#ff8888">キャンセル</span>できます。</p>
+  <div class="panel">
+    <table>
+      <thead><tr><th>アクション</th><th>効果</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-gold">TETRIS（4 ライン消し）</span></td><td>予約ガーベージをキャンセル＋タイマーリセット</td></tr>
+        <tr><td><span class="badge badge-blue">T-Spin（ライン消し付き）</span></td><td>予約ガーベージをキャンセル＋タイマーリセット</td></tr>
+        <tr><td><span class="badge badge-drill">DRILL でガーベージ破壊</span></td><td>3 倍ボーナス＋予約キャンセル</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>ガーベージ行が押し上げによってボード最上段を超えると即座に<span style="color:var(--danger)">ゲームオーバー</span>となります。
+  ゾーン発動中はガーベージの進行が停止します。</p>
+</div>
+
+<hr>
+
+<!-- ===== THEMES ===== -->
+<div class="section">
+  <div class="section-title">Section 09</div>
+  <h2>ビジュアルテーマ</h2>
+
+  <p>レベルが 5 上がるごとにボードの背景・色・パーティクルが自動的に変化します。</p>
+
+  <div class="theme-grid">
+    <div class="theme-card" style="background:rgba(0,12,52,.6); border-color:#234faf">
+      <div class="theme-name" style="color:#b9daff">🌊 深海</div>
+      <div class="theme-level" style="color:#4a73b4">Lv 1〜5</div>
+      <div class="theme-desc" style="color:#7a9de0">深海のような濃紺の世界。泡のパーティクルが漂います。</div>
+    </div>
+    <div class="theme-card" style="background:rgba(4,24,6,.6); border-color:#2d7634">
+      <div class="theme-name" style="color:#c3f2c8">🌿 森林</div>
+      <div class="theme-level" style="color:#4a9450">Lv 6〜10</div>
+      <div class="theme-desc" style="color:#7ab580">深い緑に包まれた森。葉っぱのパーティクルが舞い散ります。</div>
+    </div>
+    <div class="theme-card" style="background:rgba(40,4,0,.6); border-color:#bc3a10">
+      <div class="theme-name" style="color:#ffd0b2">🌋 火山</div>
+      <div class="theme-level" style="color:#9e4e30">Lv 11〜15</div>
+      <div class="theme-desc" style="color:#c07050">灼熱の溶岩地帯。炎のパーティクルが燃え盛ります。</div>
+    </div>
+    <div class="theme-card" style="background:rgba(2,2,14,.6); border-color:#583ea8">
+      <div class="theme-name" style="color:#d7cdff">🌌 宇宙</div>
+      <div class="theme-level" style="color:#524b91">Lv 16 以上</div>
+      <div class="theme-desc" style="color:#8278b5">漆黒の宇宙空間。星のパーティクルが瞬きます。</div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===== DANGER ===== -->
+<div class="section">
+  <div class="section-title">Section 10</div>
+  <h2>デンジャーシステム</h2>
+
+  <p>ボードの<strong>上から 4 行以内</strong>にブロックが積み上がると、デンジャー状態になります。</p>
+  <ul style="padding-left:20px; margin-bottom:12px; font-size:13px; line-height:2">
+    <li>BGM 音量が自動的に下がります（通常 40% → デンジャー 22%）</li>
+    <li>低音の<strong>心拍音</strong>が鳴り始め、積み高さに応じて間隔が短くなります</li>
+    <li>ブロックを減らしてデンジャー解除されると、音量・心拍音が元に戻ります</li>
+  </ul>
+</div>
+
+<hr>
+
+<!-- ===== DYNAMIC AUDIO ===== -->
+<div class="section">
+  <div class="section-title">Section 11</div>
+  <h2>ダイナミックオーディオ</h2>
+
+  <p>ゲームの状況に合わせて効果音がリアルタイムで変化します。</p>
+
+  <div class="panel">
+    <table>
+      <thead><tr><th>状況</th><th>効果音の変化</th></tr></thead>
+      <tbody>
+        <tr><td>レベルアップ</td><td>回転音の周波数・倍音が上昇し、ロック音がより力強くなる</td></tr>
+        <tr><td>コンボ継続</td><td>ライン消去音のピッチがコンボ数に応じて最大 +8 半音上昇</td></tr>
+        <tr><td>デンジャー</td><td>心拍音が鳴り始め、積み高さで拍間隔が変化</td></tr>
+        <tr><td>ゾーン発動</td><td>「キィィィィン！」という高音のゾーン突入音が鳴る</td></tr>
+        <tr><td>ガーベージ警告</td><td>「ガガガッ」という低周波地響き音が鳴る</td></tr>
+        <tr><td>アイテム発動</td><td>「ピコーン！」という上昇チャープ音が鳴る</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===== LEVEL ===== -->
+<div class="section">
+  <div class="section-title">Section 12</div>
+  <h2>レベルシステム</h2>
+
+  <p>10 ライン消去ごとにレベルが上がり、ピースの落下速度が速くなります。</p>
+  <div class="panel">
+    <table>
+      <thead><tr><th>レベル</th><th>目安の落下速度</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>48 フレームに 1 マス（約 0.8 秒）</td></tr>
+        <tr><td>5</td><td>32 フレームに 1 マス（約 0.5 秒）</td></tr>
+        <tr><td>10</td><td>12 フレームに 1 マス（約 0.2 秒）</td></tr>
+        <tr><td>11 以上</td><td>最高速（4 フレームに 1 マス）</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===== TIPS ===== -->
+<div class="section">
+  <div class="section-title">Section 13</div>
+  <h2>攻略のヒント</h2>
+
+  <div class="tip">
+    <div class="tip-num">1</div>
+    <div>フラットな地形を保ちましょう。凸凹が激しいと穴が増え、後で詰まりやすくなります。
+    理想は右端または左端に I ピース用の 1 列縦穴を確保しておくことです（Lv 高速時でも TETRIS を狙いやすい）。</div>
+  </div>
+
+  <div class="tip">
+    <div class="tip-num">2</div>
+    <div>ゾーンはピンチのとき（積み上がったとき）に温存するより、<strong>低積み状態で溜まり次第使う</strong>のが高得点への近道です。
+    ZONE ULTRA（9 ライン）以上を目指すと二次曲線でスコアが跳ね上がります。</div>
+  </div>
+
+  <div class="tip">
+    <div class="tip-num">3</div>
+    <div>ガーベージ警告音が鳴ったら <strong>テトリスか T-Spin</strong> で即座にキャンセルを狙いましょう。
+    無視してガーベージを受け入れると、穴の位置が列ごとにランダムなため整地が難しくなります。</div>
+  </div>
+
+  <div class="tip">
+    <div class="tip-num">4</div>
+    <div>アイテムブロック（RAINBOW・DRILL）は出現したら最優先で使い所を考えましょう。
+    特に <span style="color:var(--garbage)">ガーベージ行</span>が積んである状態で DRILL を使うと <strong>3 倍ボーナス＋相殺</strong>の大チャンスです。</div>
+  </div>
+
+  <div class="tip">
+    <div class="tip-num">5</div>
+    <div>ホールドは「今すぐ使えないピースを避難させる」ために使います。
+    T ピースをホールドに温存しておくと、T-Spin を狙えるタイミングで一気に差し込めます。</div>
+  </div>
+
+  <div class="tip">
+    <div class="tip-num">6</div>
+    <div>ロックディレイ（着地後 0.5 秒の猶予）を活用して、着地後に素早く左右移動や回転を行うことで
+    より深い隙間や壁際への設置が可能になります（最大 15 回のリセットに注意）。</div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===== UI GUIDE ===== -->
+<div class="section">
+  <div class="section-title">Section 14</div>
+  <h2>画面レイアウト</h2>
+
+  <div class="panel">
+    <div class="panel-title">左パネル</div>
+    <table>
+      <thead><tr><th>表示要素</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>TETRIS ロゴ</td><td>タイトルロゴ</td></tr>
+        <tr><td>HOLD</td><td>保存中のピース（空の場合は「―」）</td></tr>
+        <tr><td>TIME</td><td>現在プレイ時間（ポーズ中は停止）</td></tr>
+        <tr><td>LEVEL</td><td>現在のレベル</td></tr>
+        <tr><td>GOAL</td><td>次レベルまでの残りライン数</td></tr>
+        <tr><td>ZONE</td><td>ゾーンゲージ（満タンで READY! 点滅 → Enter で発動）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">右パネル</div>
+    <table>
+      <thead><tr><th>表示要素</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td>NEXT × 3</td><td>次に出てくる 3 ピースのプレビュー</td></tr>
+        <tr><td>HIGH SCORE</td><td>最高スコア（ファイルに保存・引き継ぎ）</td></tr>
+        <tr><td>SCORE</td><td>現在のスコア</td></tr>
+        <tr><td>LINES</td><td>総消去ライン数</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="panel">
+    <div class="panel-title">ボード内表示</div>
+    <table>
+      <thead><tr><th>表示要素</th><th>内容</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-zone">青く光る行</span></td><td>ゾーン中の蓄積ライン（終了時に一括消去）</td></tr>
+        <tr><td><span class="badge badge-gray">グレーの行</span></td><td>ガーベージ行（穴が 1 列あり）</td></tr>
+        <tr><td><span class="badge badge-item">★ マーク</span></td><td>RAINBOW アイテムブロック</td></tr>
+        <tr><td><span class="badge badge-drill">D マーク</span></td><td>DRILL アイテムブロック</td></tr>
+        <tr><td>右側の赤いバー</td><td>ガーベージ警告インジケーター</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  TETRIS — Pygame Edition &nbsp;|&nbsp; Python 3 &nbsp;|&nbsp; 個人学習用プロジェクト
+</div>
+
+</body>
+</html>

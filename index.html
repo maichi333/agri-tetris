@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>大収穫！ 農業テトリス</title>
+  <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0a1a0a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+      color: #ccc;
+    }
+    #loading-screen {
+      text-align: center;
+      padding: 40px;
+    }
+    #loading-screen h1 {
+      font-size: 2.5rem;
+      color: #c8e63c;
+      text-shadow: 0 0 20px #4a8a00;
+      margin-bottom: 16px;
+    }
+    #status {
+      font-size: 1rem;
+      color: #aaa;
+      margin-bottom: 24px;
+      min-height: 1.5em;
+    }
+    #progress-bar {
+      width: 360px;
+      height: 8px;
+      background: #1e2e1e;
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 0 auto;
+    }
+    #progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #3a8a00, #c8e63c);
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+    #hint {
+      margin-top: 20px;
+      font-size: 0.8rem;
+      color: #556;
+    }
+    canvas {
+      display: none;
+      border: 2px solid #2a4a2a;
+      box-shadow: 0 0 40px #1a4a00;
+    }
+    #debug-log {
+      display: none;  /* デバッグ完了のため非表示 */
+    }
+    #error-box {
+      display: none;
+      background: #3a0a0a;
+      border: 1px solid #aa3333;
+      border-radius: 8px;
+      padding: 20px;
+      max-width: 600px;
+      margin-top: 20px;
+      font-size: 0.85rem;
+      color: #ff9999;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <div id="debug-log"></div>
+  <div id="loading-screen">
+    <h1>🌾 大収穫！</h1>
+    <div id="status">初期化中...</div>
+    <div id="progress-bar"><div id="progress-fill"></div></div>
+    <div id="hint">初回は Pyodide のダウンロードに時間がかかります（約30〜60秒）</div>
+  </div>
+  <canvas id="canvas" width="700" height="670"></canvas>
+  <div id="error-box"></div>
+
+  <script src="https://cdn.jsdelivr.net/pyodide/v0.26.4/full/pyodide.js"></script>
+  <script>
+    const status   = document.getElementById('status');
+    const progress = document.getElementById('progress-fill');
+    const canvas   = document.getElementById('canvas');
+    const loading  = document.getElementById('loading-screen');
+    const errorBox = document.getElementById('error-box');
+    const debugLog = document.getElementById('debug-log');
+
+    function setStatus(msg, pct) {
+      status.textContent = msg;
+      if (pct !== undefined) progress.style.width = pct + '%';
+    }
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.style.display = 'block';
+      setStatus('エラーが発生しました', 100);
+    }
+
+    function dbg(msg, color) {
+      const line = document.createElement('div');
+      line.textContent = msg;
+      if (color) line.style.color = color;
+      // 最新のメッセージを一番上に追加（エラーが隠れないようにするため）
+      debugLog.insertBefore(line, debugLog.firstChild);
+      console.log('[DBG]', msg);
+    }
+
+    async function main() {
+      try {
+        // ── Pyodide 初期化 ──
+        setStatus('Pyodide を初期化中...', 5);
+        const pyodide = await loadPyodide();
+
+        // ── numpy ロード ──
+        setStatus('numpy を読み込み中...', 20);
+        await pyodide.loadPackage('numpy');
+
+        // ── pygame-ce ロード ──
+        setStatus('pygame-ce を読み込み中...', 40);
+        await pyodide.loadPackage('pygame-ce');
+
+        // ── 日本語フォントを仮想FSに配置（任意・NotoSansJP-Regular.ttf があれば） ──
+        setStatus('フォントを確認中...', 55);
+        try {
+          const fontRes = await fetch('font/NotoSansJP-Regular.ttf');
+          if (fontRes.ok) {
+            const fontBuf = await fontRes.arrayBuffer();
+            // /home/pyodide/ は Pyodide の既定ホームで確実にアクセス可能
+            pyodide.FS.writeFile('/home/pyodide/NotoSansJP-Regular.ttf', new Uint8Array(fontBuf));
+            console.log('[Font] NotoSansJP-Regular.ttf を /home/pyodide/ に配置しました size=' + fontBuf.byteLength);
+          } else {
+            console.log('[Font] fetch 失敗: status=' + fontRes.status);
+          }
+        } catch (e) {
+          console.log('[Font] フォントファイルなし（省略）:', e.message);
+        }
+
+        // ── BGM ファイルを仮想FSに配置（任意） ──
+        setStatus('BGM を確認中...', 65);
+        try {
+          const bgmName = encodeURIComponent('テトリス  重音テトSV.mp3')
+                           .replace(/%20/g, '%20');
+          const bgmRes  = await fetch('テトリス  重音テトSV.mp3');
+          if (bgmRes.ok) {
+            const bgmBuf = await bgmRes.arrayBuffer();
+            pyodide.FS.writeFile(
+              '/home/pyodide/テトリス  重音テトSV.mp3',
+              new Uint8Array(bgmBuf)
+            );
+            console.log('[BGM] mp3 を仮想FSに配置しました');
+          }
+        } catch (e) {
+          console.log('[BGM] BGMファイルなし（省略）:', e.message);
+        }
+
+        // ── hiscore ファイルを LocalStorage から復元 ──
+        try {
+          const saved = localStorage.getItem('daishukaku_hiscore');
+          if (saved) {
+            pyodide.FS.writeFile(
+              '/home/pyodide/tetris_hiscore.txt',
+              new TextEncoder().encode(saved)
+            );
+          }
+        } catch (e) { /* ignore */ }
+
+        // ── tetris.py をフェッチして実行 ──
+        setStatus('ゲームコードを読み込み中...', 80);
+        let pyRes;
+        try {
+          // キャッシュバスター付きで取得（通常の HTTP サーバー向け）
+          pyRes = await fetch('tetris.py?v=' + Date.now());
+        } catch(fetchErr) {
+          // data:/file: URL コンテキストではキャッシュバスターなしで再試行
+          try {
+            pyRes = await fetch('tetris.py');
+          } catch(fetchErr2) {
+            throw new Error(
+              'tetris.py の読み込みに失敗しました。\n' +
+              'このゲームは HTTP サーバー経由（Cloudflare の URL など）で開く必要があります。\n' +
+              'ファイルを直接ブラウザで開いた場合は動作しません。\n' +
+              '詳細: ' + fetchErr2.message
+            );
+          }
+        }
+        if (!pyRes.ok) throw new Error('tetris.py の取得に失敗: ' + pyRes.status);
+        const pyCode = await pyRes.text();
+
+        // Python 内で __file__ を設定してから tetris.py を実行
+        setStatus('ゲームを起動中...', 90);
+        await pyodide.runPythonAsync(`
+import os, sys
+__file__ = '/home/pyodide/tetris.py'
+`);
+
+        // tetris.py を定義のみロード（__name__ を変えて if __name__==__main__ を防ぐ）
+        await pyodide.runPythonAsync(`__name__ = 'tetris_browser'`);
+        await pyodide.runPythonAsync(pyCode);
+
+        // canvas を表示してローディング画面を非表示に
+        setStatus('ゲームを起動中...', 97);
+        loading.style.display = 'none';
+        canvas.style.display  = 'block';
+
+        // Python の print() を画面上のデバッグログにも流す
+        pyodide.setStdout({ batched: (msg) => { dbg(msg); } });
+        pyodide.setStderr({ batched: (msg) => { dbg('[ERR] ' + msg, '#f88'); } });
+
+        // キーボード入力: JS イベントを pygame キューに転送するためのバッファ
+        // BGM: JavaScript Audio API で再生（pygame.mixer はブラウザ非対応のため）
+        try {
+          const bgmUrl = new URL('テトリス  重音テトSV.mp3', window.location.href).href;
+          window._bgmAudio = new Audio(bgmUrl);
+          window._bgmAudio.loop   = true;
+          window._bgmAudio.volume = 0.4;
+        } catch(e) {
+          window._bgmAudio = null;
+          console.warn('[BGM]', e);
+        }
+
+        window._pendingKeys     = [];
+        window._pendingKeyTypes = [];
+        // pygame-ce 2.x (SDL2) のキーコード。矢印・Shift は SDL2 値を使用
+        const K_MAP = {
+          'ArrowLeft':  1073741904, // pygame.K_LEFT
+          'ArrowRight': 1073741903, // pygame.K_RIGHT
+          'ArrowUp':    1073741906, // pygame.K_UP
+          'ArrowDown':  1073741905, // pygame.K_DOWN
+          'ShiftLeft':  1073742049, // pygame.K_LSHIFT
+          'ShiftRight': 1073742053, // pygame.K_RSHIFT
+          'Space':32,'KeyC':99,'KeyZ':122,
+          'KeyP':112,'KeyR':114,'KeyM':109,
+          'Tab':9,'Enter':13,'NumpadEnter':13
+        };
+        document.addEventListener('keydown', (e) => {
+          if (e.code === 'Escape') { e.preventDefault(); return; } // ESC 無効化
+          const k = K_MAP[e.code];
+          if (k !== undefined) {
+            e.preventDefault();
+            window._pendingKeys.push(k);
+            window._pendingKeyTypes.push(0);
+          }
+        });
+        document.addEventListener('keyup', (e) => {
+          const k = K_MAP[e.code];
+          if (k !== undefined) {
+            window._pendingKeys.push(k);
+            window._pendingKeyTypes.push(1);
+          }
+        });
+
+        // Tetris クラスを取得してゲーム開始（Pyodide の既存ループで await）
+        dbg('[JS] Tetris() 起動開始');
+        await pyodide.runPythonAsync(`
+import asyncio, traceback as _tb
+try:
+    _game = Tetris()
+    print('[PY] Tetris() 初期化完了')
+    await _game.run()
+    print('[PY] run() 終了')
+except BaseException as _ex:
+    print(f'[PY FATAL] {type(_ex).__name__}: {_ex}')
+    _tb.print_exc()
+    raise
+`);
+        console.log('[JS] runPythonAsync 完了');
+
+      } catch (err) {
+        console.error('[JS ERROR]', err);
+        loading.style.display = 'block';
+        canvas.style.display  = 'none';
+        showError('エラー:\n' + err.toString() + '\n\n' + (err.stack || ''));
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>

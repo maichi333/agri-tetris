@@ -1,0 +1,104 @@
+# 大収穫！ 農業テトリス (agri-tetris) 引継ぎ資料
+
+他AIアシスタントおよび開発者がこのプロジェクトを引き継いで開発・運用する際に必要な情報をまとめた完全仕様書です。
+
+## プロジェクト概要
+
+- **名称**: 大収穫！ 農業テトリス（Modern Pygame Tetris）
+- **コンセプト**: 農業とテトリスを融合させたオリジナルゲーム。
+- **最大の特徴**: **ローカルデスクトップ版（Python/Pygame）** と **Webブラウザ版（Pyodide/WebAssembly + pygame-ce）** の両方で動作するハイブリッド設計。
+- **競技性・機能性**: SRS（Super Rotation System）ウォールキック、DAS/ARRプリセット切替、ゾーンシステム、ガーベージ、T-Spin判定、ホールド、ゴースト表示、ロックディレイなど、現代の本格テトリス仕様を忠実に実装しています。
+
+## ディレクトリ・ファイル構成
+
+```
+agri-tetris/
+├── index.html            … Webブラウザ版（Pyodide + pygame-ce でブラウザ上に Python を実行）
+├── tetris.py             … ゲーム本体（Pygame-ce / Python 3.10+ 対応。ローカル/Web両対応設計）
+├── tetris_manual.html    … ゲーム詳細説明書（操作、ルール、SRS、ゾーン等の完全解説Webページ）
+├── tetris.bat            … Windowsローカル実行用バッチファイル（ダブルクリックで起動）
+├── tetris.ico            … アプリケーション用アイコン（複数サイズ内蔵）
+├── favicon.ico           … Web配信用ファビコン
+├── tetris_hiscore.txt    … ローカル実行時のハイスコア保存ファイル
+├── テトリス  重音テトSV.mp3 … オリジナルBGM（重音テトSV版テトリスBGM）
+├── font/
+│   └── NotoSansJP-Regular.ttf … 日本語表示用フォント
+├── assets/
+│   └── images/           … 農業テーマ用画像素材（きゅうり、日向夏、マンゴー、ナス、トマト、農家等計12点）
+├── make_icon.py          … Pillowを使用した tetris.ico 生成スクリプト
+├── make_shortcut.bat     … デスクトップに起動ショートカットを作成するバッチ
+├── make_shortcut.ps1     … ショートカット作成PowerShellスクリプト
+└── HANDOFF.md            … 本引継ぎ資料
+```
+
+## 動作環境と実行方法
+
+### 1. ローカルデスクトップ実行（推奨・低遅延）
+- **前提環境**: Python 3.10以上
+- **必要パッケージ**:
+  ```bash
+  pip install pygame-ce numpy Pillow
+  ```
+- **起動方法**:
+  - `tetris.bat` をダブルクリック、またはターミナルで `python tetris.py` を実行。
+- **デスクトップショートカット作成**:
+  - `make_shortcut.bat` を実行すると、デスクトップ上にアイコン付きショートカット（`Tetris.lnk`）が自動生成されます。
+
+### 2. Webブラウザ実行（Pyodide版）
+- **前提環境**: HTTPサーバー経由でのアクセス（CORS制限および静的アセットfetchのため `file://` 直開きは不可）。
+- **ローカルテスト方法**:
+  ```bash
+  # 本ディレクトリでローカルサーバーを起動
+  python -m http.server 8000
+  ```
+  ブラウザで `http://localhost:8000/index.html` を開く。
+- **仕組み**:
+  - `cdn.jsdelivr.net` から Pyodide（v0.26.4）をロード。
+  - `numpy`, `pygame-ce` をWebAssembly環境に展開。
+  - 仮想ファイルシステム（`/home/pyodide/`）にフォント、BGM、`tetris.py` を配置して非同期実行。
+- **ハイスコアの保存**:
+  - Web版ではブラウザの `localStorage`（キー名: `daishukaku_hiscore`）に保存・復元されます。
+
+## ゲーム仕様・主要システム
+
+| システム | 詳細仕様 |
+|---|---|
+| **SRS（ウォールキック）** | 公式SRS（Super Rotation System）仕様の回転キックテーブル（JLSTZ、Iミノ）を実装。 |
+| **DAS / ARR 切替** | `Tab` キーで長押し移動速度を即時切替可能。<br>・`NORMAL` (DAS: 10フレーム, ARR: 2フレーム)<br>・`FAST` (DAS: 6フレーム, ARR: 1フレーム)<br>・`PRO` (DAS: 3フレーム, ARR: 1フレーム) |
+| **ロックディレイ** | 着地後 0.5秒（30フレーム）の設置猶予。移動や回転で最大15回までリセット可能（無限スピン防止リセット上限あり）。 |
+| **ゾーンシステム** | ライン消去でゲージ蓄積。満タン時に発動すると14秒間時間停止し、消去したラインが下部にストックされ一括消去されるフィーバーモード。 |
+| **ガーベージシステム** | 危険状態の警告表示（3秒猶予）後、最下段から穴あきブロックが迫り上がるペナルティ機能。 |
+| **BGM・サウンド** | ・ローカル: `pygame.mixer` を使用して再生。<br>・Web版: ブラウザ制限（Pygame mixerの制限）を回避するため、JavaScriptの Web Audio API（`window._bgmAudio`）で制御。 |
+
+## 操作方法（キーバインド）
+
+| キー | 動作 |
+|---|---|
+| `←` / `→` | 左右移動（長押しでDAS連続移動） |
+| `↑` | 右回転（時計回り） |
+| `↓` | ソフトドロップ（通常より高速落下） |
+| `Space` | ハードドロップ（即時着地＆ロック） |
+| `C` / `Shift` | ホールド（ミノのキープ） |
+| `Tab` | DAS / ARR 速度プリセット切り替え |
+| `P` | 一時停止（ポーズ） |
+| `R` | リスタート |
+
+※詳しい操作解説・テクニックは `tetris_manual.html` をブラウザで開いて確認できます。
+
+## 素材ファイル（assets/images）について
+
+`assets/images/` には以下の農業テーマ用オリジナル画像（PNG形式）が収録されています。
+- 野菜・果物: `Cucumber.png`（きゅうり）, `Mango.png`（マンゴー）, `Hyuganatsu.png`（日向夏）, `tomato.png`（トマト）, `eggplant.png`（ナス）, `kinkan.png`（金柑）, `redbellpepper.png`（赤パプリカ）
+- キャラクター・背景: `farmer.png`, `farmerfight.png`, `stage1_bg.png`, `44break.png`, `88break.png`
+
+これらはブロックのスキン化、背景演出、カットインアニメーションなどの機能拡張にそのまま利用可能です。
+
+## 他AI・開発者向けの開発・修正ルール
+
+1. **デュアル環境対応の維持**:
+   - `tetris.py` 内にはローカル（Pygame）とブラウザ（Pyodide）を判別する `_IN_BROWSER` フラグがあります。
+   - ファイル入出力、サウンド再生、非同期ループなどの変更を行う際は、両方の動作環境を壊さないよう配慮してください。
+2. **文字コード**:
+   - スクリプト・ドキュメントはすべて **UTF-8（BOMなし）** で保存すること。
+3. **設定変更**:
+   - 落下速度、エフェクト時間、ボードサイズ等は `tetris.py` 先頭の定数ブロック（45〜94行目付近）で一括管理されています。
