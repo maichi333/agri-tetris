@@ -574,11 +574,29 @@ def _rainbow_color(offset=0.0):
 def draw_cell(surface, px, py, color, size=CELL, alpha=255, item_type=None):
     """光沢のある 3D ブロックを描く。野菜ディテール付き農業テーマ版"""
     if alpha < 255:
-        # ゴースト：枠線のみ半透明
+        # ゴースト：加算合成（BLEND_ADD）＋純白ネオン太枠＋コーナーマーカー
+        # 加算ブレンドにより、どんな暗い背景でも黒に沈まず白〜水色の発光としてクッキリ浮かび上がります
         s = pygame.Surface((size, size), pygame.SRCALPHA)
-        pygame.draw.rect(s, (*color, alpha//3), (1, 1, size-2, size-2), border_radius=3)
-        pygame.draw.rect(s, (*color, alpha),    (1, 1, size-2, size-2), width=1, border_radius=3)
-        surface.blit(s, (px, py))
+        
+        ticks = pygame.time.get_ticks()
+        pulse = 0.85 + 0.15 * math.sin(ticks / 160.0)   # ほんのり息づくパルス
+        
+        # 1. 内部の青白いネオン発光塗り
+        fv = int(60 * pulse)
+        s.fill((fv, fv + 30, fv + 60, 255))
+        
+        # 2. 太さ 3px の鮮明な純白ネオン外枠
+        bv = int(240 * pulse)
+        pygame.draw.rect(s, (bv, bv, bv, 255), (0, 0, size, size), width=3, border_radius=3)
+        
+        # 3. 四隅の純白コーナーマーカー（落ち位置を正確に把握）
+        pygame.draw.rect(s, (255, 255, 255, 255), (1, 1, 4, 4))
+        pygame.draw.rect(s, (255, 255, 255, 255), (size - 5, 1, 4, 4))
+        pygame.draw.rect(s, (255, 255, 255, 255), (1, size - 5, 4, 4))
+        pygame.draw.rect(s, (255, 255, 255, 255), (size - 5, size - 5, 4, 4))
+        
+        # 加算ブレンドで描画（背景が黒くても光が加算されて絶対に暗くならない）
+        surface.blit(s, (px, py), special_flags=pygame.BLEND_ADD)
         return
 
     # ── 恵みの雨（RAINBOW）：ブロック色をレインボーサイクリングに上書き ──
@@ -1431,11 +1449,12 @@ class Tetris:
         self.prev_danger    = False    # 前フレームのデンジャー状態（遷移検出用）
         self.heartbeat_timer = 0       # 次の心拍まで残りフレーム
         # --- ゾーンシステム ---
-        self.zone_gauge      = 0.0     # ゾーンゲージ（0〜100）
-        self.is_zone_active  = False   # ゾーン発動中か
-        self.zone_timer      = 0       # ゾーン残りフレーム
-        self.zone_stack      = 0       # ゾーン中に蓄積したライン数
-        self.zone_end_anim   = 0       # ゾーン終了演出カウントダウン
+        self.zone_gauge        = 0.0     # ゾーンゲージ（0〜100）
+        self.is_zone_active    = False   # ゾーン発動中か
+        self.zone_timer        = 0       # ゾーン残りフレーム
+        self.zone_stack        = 0       # ゾーン中に蓄積したライン数
+        self.zone_stack_timer  = 0       # ゾーン蓄積ライン数表示タイマー（数秒でフェードアウト）
+        self.zone_end_anim     = 0       # ゾーン終了演出カウントダウン
         # --- ガーベージシステム ---
         self.garbage_timer   = 0       # ガーベージ発生カウンター
         self.garbage_warning = False   # 警告中か
@@ -1491,6 +1510,11 @@ class Tetris:
         self.zone_timer     = ZONE_DURATION
         self.zone_stack     = 0
         self.zone_gauge     = 0.0
+        # ゾーン発動時：画面上の各種テキスト・ポップアップを消去
+        self.score_popups.clear()
+        self.tspin_timer  = 0
+        self.combo_timer  = 0
+        self.tetris_timer = 0
         # ロックタイマーをリセット（発動直後にロックされないよう）
         self.lock_timer     = 0
         if self.snd_zone and not self.bgm_muted:
@@ -1911,6 +1935,7 @@ class Tetris:
                     for _ in range(PARTICLE_PER_CELL):
                         self.particles.append(Particle(px, py, (60, 160, 255)))
             self.zone_stack += cleared
+            self.zone_stack_timer = 75    # 1.25秒（75フレーム）表示後フェードアウト
             self._popup_y = BOARD_Y + (min(self.flash_rows) * CELL) - 10
             self.flash_rows = []
             self._update_score(cleared)   # コンボ・バナーは通常通り（スコアは少な目）
@@ -2385,6 +2410,8 @@ class Tetris:
             self.zone_timer -= 1
             if self.zone_timer <= 0:
                 self._end_zone()
+        if self.zone_stack_timer > 0:
+            self.zone_stack_timer -= 1
         # ゾーン終了演出カウントダウン
         if self.zone_end_anim > 0:
             self.zone_end_anim -= 1
@@ -2459,18 +2486,18 @@ class Tetris:
         self._draw_particles()                 # ボードの上にパーティクル
         self._draw_right_panel()
 
-        # TETRIS! バナー
-        if self.tetris_timer > 0 and not self.game_over and not self.paused:
+        # TETRIS! バナー（ゾーン中は非表示）
+        if self.tetris_timer > 0 and not self.game_over and not self.paused and not self.is_zone_active:
             self._draw_tetris_banner()
             self.tetris_timer -= 1
 
-        # T-スピン / B2B バナー
-        if self.tspin_timer > 0 and not self.game_over and not self.paused:
+        # T-スピン / B2B バナー（ゾーン中は非表示）
+        if self.tspin_timer > 0 and not self.game_over and not self.paused and not self.is_zone_active:
             self._draw_tspin_banner()
             self.tspin_timer -= 1
 
-        # コンボ バナー
-        if self.combo_timer > 0 and not self.game_over and not self.paused:
+        # コンボ バナー（ゾーン中は非表示）
+        if self.combo_timer > 0 and not self.game_over and not self.paused and not self.is_zone_active:
             self._draw_combo_banner()
             self.combo_timer -= 1
 
@@ -2479,9 +2506,10 @@ class Tetris:
             self._draw_levelup()
             self.levelup_timer -= 1
 
-        # スコアポップアップ
-        for p in self.score_popups:
-            p.draw(self.screen, self.f_med)
+        # スコアポップアップ（ゾーン中は非表示）
+        if not self.is_zone_active:
+            for p in self.score_popups:
+                p.draw(self.screen, self.f_med)
 
         if self.paused and not self.game_over:
             das_delay, arr_speed = DAS_PRESETS[self.das_preset]
@@ -2680,14 +2708,22 @@ class Tetris:
                 else:
                     draw_cell(self.screen, bx + c*CELL, by + r*CELL, col)
 
-        # ── ゾーン中：蓄積ライン数カウンターを中央に表示 ──
-        if self.is_zone_active and self.zone_stack > 0:
-            zp = 0.7 + 0.3 * abs(math.sin(ticks / 300.0))
-            za = int(220 * zp)
+        # ── ゾーン中：ライン消去時に「X LINES」を一時的（約1.25秒）にポップアップ表示してスーッとフェードアウト ──
+        if self.is_zone_active and self.zone_stack_timer > 0 and self.zone_stack > 0:
+            t = self.zone_stack_timer
+            if t > 65:
+                za = int(230 * (75 - t) / 10)
+            elif t < 20:
+                za = int(230 * t / 20)
+            else:
+                za = 230
             zt_s = self.f_big.render(f"{self.zone_stack} LINES", True, (100, 210, 255))
+            shadow = self.f_big.render(f"{self.zone_stack} LINES", True, (0, 0, 0))
             zt_s.set_alpha(za)
-            self.screen.blit(zt_s, zt_s.get_rect(
-                center=(bx + BOARD_W // 2, by + BOARD_H // 2 + 30)))
+            shadow.set_alpha(za // 2)
+            rect = zt_s.get_rect(center=(bx + BOARD_W // 2, by + BOARD_H // 2 + 20))
+            self.screen.blit(shadow, rect.move(2, 2))
+            self.screen.blit(zt_s, rect)
 
         # ── ゾーン終了演出フラッシュ ──
         if self.zone_end_anim > 0:
@@ -2741,7 +2777,7 @@ class Tetris:
                     if 0 <= y < ROWS:
                         draw_cell(self.screen,
                                   bx + x*CELL, by + y*CELL,
-                                  self.current.color, alpha=80)
+                                  self.current.color, alpha=200)
 
         # 現在ピース（アイテムブロックは item_type を渡してグロー＋記号を表示）
         if not self.game_over:
