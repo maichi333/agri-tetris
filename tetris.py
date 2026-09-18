@@ -1406,7 +1406,9 @@ class Tetris:
         self.tetris_timer = 0
         self.move_timer   = 0
         self.move_dir     = 0
-        self.bgm_muted    = False           # M キーでミュート切替（ブラウザは JS Audio API 使用）
+        self.bgm_muted        = False           # M キーでミュート切替（ブラウザは JS Audio API 使用）
+        self.mute_toast_timer = 0               # ミュート切替時のトースト表示タイマー
+        self.mute_toast_msg   = ""              # ミュート切替時のトースト表示テキスト
         # --- ロックディレイ状態 ---
         self.is_landed        = False      # 現在ピースが接地中かどうか
         self.lock_timer       = 0          # 接地してからのフレーム数
@@ -2279,6 +2281,8 @@ class Tetris:
                 # M キー: どの状態でもミュート切替
                 if event.key == pygame.K_m:
                     self.bgm_muted = not self.bgm_muted
+                    self.mute_toast_timer = 90
+                    self.mute_toast_msg   = "消音中 (MUTE ON)" if self.bgm_muted else "音声再生 (MUTE OFF)"
                     if not _IN_BROWSER:
                         pygame.mixer.music.set_volume(0.0 if self.bgm_muted else 0.4)
                     self._js_bgm('mute' if self.bgm_muted else 'unmute')
@@ -2518,6 +2522,9 @@ class Tetris:
                                (200, 200, 100))
         if self.game_over:
             self._draw_gameover()
+
+        # ── 消音（MUTE）の常時インジケーター & ポップアップ通知 ──
+        self._draw_mute_status()
 
         # ─── 描画先を元に戻してシェイクオフセットを適用 ───
         self.screen = real_screen
@@ -2856,8 +2863,13 @@ class Tetris:
 
         # ミュート中アイコン表示
         if self.bgm_muted:
-            mute_surf = self.f_sm.render("🔇 MUTE (M)", True, (220, 80, 80))
-            self.screen.blit(mute_surf, (rx + 6, BOARD_Y + 486 + len(hints)*20 + 4))
+            ticks = pygame.time.get_ticks()
+            pulse = 0.7 + 0.3 * abs(math.sin(ticks / 250.0))
+            m_r   = pygame.Rect(rx + 8, BOARD_Y + 486 + len(hints)*20 + 2, 168, 26)
+            pygame.draw.rect(self.screen, (140, 20, 20), m_r, border_radius=4)
+            pygame.draw.rect(self.screen, (int(255 * pulse), 80, 80), m_r, width=2, border_radius=4)
+            mute_surf = self.f_jp_sm.render("🔇 消音中 (M)", True, (255, 230, 230))
+            self.screen.blit(mute_surf, mute_surf.get_rect(center=m_r.center))
 
     # --- TETRIS! バナー ---
     def _draw_tetris_banner(self):
@@ -3205,12 +3217,53 @@ class Tetris:
         das_delay, arr_speed = DAS_PRESETS[self.das_preset]
         preset_colors = {'NORMAL': (180, 220, 180), 'FAST': (255, 210, 80), 'PRO': (255, 110, 110)}
         pcol = preset_colors[self.das_preset]
-        preset_s = self.f_jp_sm.render(
-            f"操作感: {self.das_preset}  (DAS={das_delay}f / ARR={arr_speed}f)   Tab で変更",
-            True, pcol)
-        self.screen.blit(preset_s, preset_s.get_rect(center=(cx, logo_y + 340)))
+        # タイトル画面でも消音ステータスを表示
+        self._draw_mute_status()
 
         self._flip_display()
+
+    # --- 消音（MUTE）の常時インジケーター & トースト通知描画 ---
+    def _draw_mute_status(self):
+        ticks = pygame.time.get_ticks()
+
+        # 1. 常時表示消音バッジ（画面右上ヘッダー）
+        if self.bgm_muted:
+            pulse = 0.75 + 0.25 * math.sin(ticks / 220.0)
+            bx, by = SCREEN_W - 148, 12
+            bw, bh = 136, 30
+            badge_rect = pygame.Rect(bx, by, bw, bh)
+
+            # 赤い背景・パルス発光枠
+            bg_surf = pygame.Surface((bw, bh), pygame.SRCALPHA)
+            bg_surf.fill((160, 20, 20, 230))
+            self.screen.blit(bg_surf, (bx, by))
+            pygame.draw.rect(self.screen, (int(255 * pulse), 80, 80), badge_rect, width=2, border_radius=5)
+
+            # テキスト描画（日本語フォント）
+            lbl = self.f_jp_sm.render("🔇 消音中 [M]", True, (255, 235, 235))
+            self.screen.blit(lbl, lbl.get_rect(center=badge_rect.center))
+
+        # 2. Mキー押下時のトーストポップアップ（画面上部中央に約1.5秒間通知）
+        if self.mute_toast_timer > 0:
+            t = self.mute_toast_timer
+            self.mute_toast_timer -= 1
+            alpha = int(255 * min(1.0, t / 20.0))
+
+            tw, th = 260, 44
+            tx, ty = (SCREEN_W - tw) // 2, 45
+
+            bg_col = (170, 25, 25, int(230 * (alpha / 255))) if self.bgm_muted else (25, 140, 60, int(230 * (alpha / 255)))
+            bd_col = (255, 90, 90) if self.bgm_muted else (90, 255, 150)
+
+            t_surf = pygame.Surface((tw, th), pygame.SRCALPHA)
+            t_surf.fill(bg_col)
+            pygame.draw.rect(t_surf, (*bd_col, alpha), (0, 0, tw, th), width=2, border_radius=8)
+
+            txt = self.f_jp_sm.render(self.mute_toast_msg, True, (255, 255, 255))
+            txt.set_alpha(alpha)
+            t_surf.blit(txt, txt.get_rect(center=(tw // 2, th // 2)))
+
+            self.screen.blit(t_surf, (tx, ty))
 
 
 # =============================================================================
