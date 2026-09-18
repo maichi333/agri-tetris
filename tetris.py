@@ -1388,6 +1388,7 @@ class Tetris:
 
     # ---------- 新規ゲーム ----------
     def _new_game(self):
+        _muted = getattr(self, 'bgm_muted', False)
         self.board        = Board()
         self.bag          = SevenBag()
         self.current      = self.bag.pop()
@@ -1406,7 +1407,7 @@ class Tetris:
         self.tetris_timer = 0
         self.move_timer   = 0
         self.move_dir     = 0
-        self.bgm_muted        = False           # M キーでミュート切替（ブラウザは JS Audio API 使用）
+        self.bgm_muted        = _muted          # タイトル画面等で設定された消音状態をそのまま引き継ぐ
         self.mute_toast_timer = 0               # ミュート切替時のトースト表示タイマー
         self.mute_toast_msg   = ""              # ミュート切替時のトースト表示テキスト
         # --- ロックディレイ状態 ---
