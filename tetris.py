@@ -81,6 +81,40 @@ ZONE_CELL      = '__ZONE__' # ゾーン行セルのセンチネル値（str で 
 GARBAGE_COLOR    = (90, 100, 112)  # ガーベージ行のグレーメタリック色
 GARBAGE_WARN_DUR = 180             # 警告表示フレーム数（3 秒 @ 60fps）
 
+# 天候・害虫システム設定
+WEATHER_INTERVAL_PIECES = 25   # 25 ピース設置ごとに天候選定
+WEATHER_DURATION_PIECES = 12   # 天候の持続ピース数
+
+WEATHER_TYPES = ['RAIN', 'HEATWAVE', 'PEST', 'TYPHOON']
+WEATHER_NAMES = {
+    'CLEAR':    '快晴',
+    'RAIN':     '恵みの雨',
+    'HEATWAVE': 'カンカン照り',
+    'PEST':     '害虫大発生',
+    'TYPHOON':  '台風接近',
+}
+WEATHER_ICONS = {
+    'CLEAR':    '☀️',
+    'RAIN':     '🌧️',
+    'HEATWAVE': '☀️',
+    'PEST':     '🐛',
+    'TYPHOON':  '🌀',
+}
+WEATHER_COLORS = {
+    'CLEAR':    (180, 230, 255),
+    'RAIN':     ( 80, 180, 255),
+    'HEATWAVE': (255, 140,  40),
+    'PEST':     (180, 230,  80),
+    'TYPHOON':  (160, 120, 220),
+}
+
+PEST_TYPES = {
+    'APHID':       {'name': 'アブラムシ', 'code': 'ア', 'score': 400, 'color': (210, 240, 80),  'bg': (60, 90, 20)},
+    'CATERPILLAR': {'name': 'イモムシ',   'code': 'イ', 'score': 600, 'color': ( 80, 220, 100), 'bg': (20, 80, 30)},
+    'THRIPS':      {'name': 'スリップス', 'code': 'ス', 'score': 800, 'color': (240, 200, 70),  'bg': (90, 70, 10)},
+    'SPIDER_MITE': {'name': 'ハダニ',     'code': 'ハ', 'score': 500, 'color': (240, 90,  90),  'bg': (90, 20, 20)},
+}
+
 # DAS / ARR 設定プリセット
 #   DAS_DELAY : 長押し後、最初の連続移動が始まるまでのフレーム数
 #   ARR_SPEED : 連続移動の間隔フレーム数（1=毎フレーム、2=1フレームおき…）
@@ -91,6 +125,7 @@ DAS_PRESETS = {
     'PRO':    ( 3, 1),   # DAS が短くほぼ即応。上級者向け
 }
 DAS_PRESET_ORDER = ['NORMAL', 'FAST', 'PRO']   # Tab で循環する順序
+
 
 # =============================================================================
 #  SRS ウォールキックテーブル（Super Rotation System 公式）
@@ -404,6 +439,37 @@ def _make_garbage_sound():
     noise = (noise / peak * 0.55 * 32767).astype(np.int16)
     return pygame.sndarray.make_sound(np.column_stack([noise, noise]))
 
+def _make_weather_sound():
+    """天候変化音：「ヒュオォン♪」和音スウィープ"""
+    if not HAS_NUMPY:
+        return None
+    dur = 0.40
+    n   = int(SAMPLE_RATE * dur)
+    t   = np.linspace(0, dur, n, False)
+    freq = 523 + 400 * np.sin(np.pi * t / dur)
+    w   = (np.sin(2 * np.pi * np.cumsum(freq) / SAMPLE_RATE)
+           + 0.4 * np.sin(2 * np.pi * np.cumsum(freq * 1.25) / SAMPLE_RATE))
+    env = np.sin(np.pi * t / dur)
+    w   = w * env
+    peak = np.max(np.abs(w)) + 1e-9
+    w   = (w / peak * 0.30 * 32767).astype(np.int16)
+    return pygame.sndarray.make_sound(np.column_stack([w, w]))
+
+def _make_pest_kill_sound():
+    """害虫駆除音：「パチン！」弾ける高音ポップ"""
+    if not HAS_NUMPY:
+        return None
+    dur = 0.15
+    n   = int(SAMPLE_RATE * dur)
+    t   = np.linspace(0, dur, n, False)
+    freq = 1400 - 800 * (t / dur)
+    w    = np.sin(2 * np.pi * np.cumsum(freq) / SAMPLE_RATE)
+    env  = np.exp(-np.linspace(0, 15, n))
+    w    = w * env
+    peak = np.max(np.abs(w)) + 1e-9
+    w    = (w / peak * 0.35 * 32767).astype(np.int16)
+    return pygame.sndarray.make_sound(np.column_stack([w, w]))
+
 def start_bgm_thread(youtube_url):
     """バックグラウンドで YouTube 音声をダウンロード＆ループ再生"""
     import glob
@@ -571,7 +637,7 @@ def _rainbow_color(offset=0.0):
         int(127 + 128 * math.sin(t + 4.189)),   # +4π/3
     )
 
-def draw_cell(surface, px, py, color, size=CELL, alpha=255, item_type=None):
+def draw_cell(surface, px, py, color, size=CELL, alpha=255, item_type=None, pest_type=None):
     """光沢のある 3D ブロックを描く。野菜ディテール付き農業テーマ版"""
     if alpha < 255:
         # ゴースト：加算合成（BLEND_ADD）＋純白ネオン太枠＋コーナーマーカー
@@ -808,6 +874,23 @@ def draw_cell(surface, px, py, color, size=CELL, alpha=255, item_type=None):
         sym_s   = font.render(symbol, True, sym_col)
         sym_r   = sym_s.get_rect(center=(px + size//2, py + size//2))
         surface.blit(sym_s, sym_r)
+
+    # ── 害虫ブロック：右上ミニバッジ ──
+    if pest_type and size >= 16 and pest_type in PEST_TYPES:
+        info = PEST_TYPES[pest_type]
+        code_str = info['code']
+        bw = max(12, int(size * 0.45))
+        bh = max(12, int(size * 0.45))
+        bx = px + size - bw - 2
+        by = py + 2
+        badge_rect = pygame.Rect(bx, by, bw, bh)
+        pygame.draw.rect(surface, info['bg'], badge_rect, border_radius=3)
+        pygame.draw.rect(surface, info['color'], badge_rect, width=1, border_radius=3)
+        f_pest = _get_item_font(max(10, int(size * 0.5)))
+        t_s = f_pest.render(code_str, True, info['color'])
+        t_r = t_s.get_rect(center=badge_rect.center)
+        surface.blit(t_s, t_r)
+
 
 # =============================================================================
 #  パーティクル（火花）クラス
@@ -1060,6 +1143,7 @@ class Piece:
 class Board:
     def __init__(self):
         self.grid = [[None]*COLS for _ in range(ROWS)]
+        self.pest_grid = [[None]*COLS for _ in range(ROWS)]
 
     def is_valid(self, cells):
         for x, y in cells:
@@ -1073,33 +1157,65 @@ class Board:
         for x, y in piece.cells():
             if 0 <= y < ROWS and 0 <= x < COLS:
                 self.grid[y][x] = piece.color
+                self.pest_grid[y][x] = None
 
     def clear_lines(self):
         # ゾーン行（ZONE_CELL で埋まった行）は通常クリアの対象外として保持する
-        new_grid = [row for row in self.grid
-                    if any(c is None for c in row)              # 未完成行→保持
-                    or any(c == ZONE_CELL for c in row)]        # ゾーン行→保持
+        kept_indices = [
+            i for i, row in enumerate(self.grid)
+            if any(c is None for c in row) or any(c == ZONE_CELL for c in row)
+        ]
+        cleared_indices = [i for i in range(ROWS) if i not in kept_indices]
+
+        killed_pests = []
+        for idx in cleared_indices:
+            for c in range(COLS):
+                p = self.pest_grid[idx][c]
+                if p:
+                    killed_pests.append(p)
+
+        new_grid = [self.grid[i] for i in kept_indices]
+        new_pest = [self.pest_grid[i] for i in kept_indices]
         cleared  = ROWS - len(new_grid)
         for _ in range(cleared):
             new_grid.insert(0, [None]*COLS)
+            new_pest.insert(0, [None]*COLS)
         self.grid = new_grid
-        return cleared
+        self.pest_grid = new_pest
+        return cleared, killed_pests
+
+    def spawn_pests(self, count=4):
+        """ボード上の既存ブロックからランダムに害虫を付与"""
+        valid_cells = [
+            (r, c) for r in range(ROWS) for c in range(COLS)
+            if self.grid[r][c] is not None and self.board_is_solid(r, c) and self.pest_grid[r][c] is None
+        ]
+        if not valid_cells:
+            return 0
+        pest_list = list(PEST_TYPES.keys())
+        target_cells = random.sample(valid_cells, min(count, len(valid_cells)))
+        for r, c in target_cells:
+            self.pest_grid[r][c] = random.choice(pest_list)
+        return len(target_cells)
+
+    def board_is_solid(self, r, c):
+        col = self.grid[r][c]
+        return col is not None and col != ZONE_CELL
 
     def push_garbage_lines(self, count):
         """count 行のガーベージ行を最下部に挿入し既存ブロックを上に押し上げる。
         最上行が押し出された（オーバーフロー）場合は True を返す。"""
         overflow = False
         for _ in range(count):
-            # 最上行に非 None ブロックがあればオーバーフロー
             if any(c is not None and c != ZONE_CELL for c in self.grid[0]):
                 overflow = True
-            # 全行を 1 行上にシフト（先頭を捨てる）
             self.grid.pop(0)
-            # 穴あきガーベージ行を最下行に追加（穴は 1 列ランダム）
+            self.pest_grid.pop(0)
             hole_col = random.randint(0, COLS - 1)
             new_row  = [None if c == hole_col else GARBAGE_COLOR
                         for c in range(COLS)]
             self.grid.append(new_row)
+            self.pest_grid.append([None]*COLS)
         return overflow
 
 # =============================================================================
@@ -1228,6 +1344,8 @@ class Tetris:
         self.snd_item        = None
         self.snd_zone        = None
         self.snd_garbage     = None
+        self.snd_weather     = None
+        self.snd_pest_kill   = None
         if not _IN_BROWSER:
             try:
                 pygame.mixer.init()
@@ -1244,6 +1362,8 @@ class Tetris:
                 self.snd_item      = _make_item_sound()
                 self.snd_zone      = _make_zone_sound()
                 self.snd_garbage   = _make_garbage_sound()
+                self.snd_weather   = _make_weather_sound()
+                self.snd_pest_kill = _make_pest_kill_sound()
                 # BGM
                 _bgm_path = os.path.join(_GAME_DIR, "テトリス  重音テトSV.mp3")
                 pygame.mixer.music.load(_bgm_path)
@@ -1406,10 +1526,12 @@ class Tetris:
         self._attr_pid    = None   # アトラクトBot: ピース追跡リセット
         self.tetris_timer = 0
         self.move_timer   = 0
-        self.move_dir     = 0
-        self.bgm_muted        = _muted          # タイトル画面等で設定された消音状態をそのまま引き継ぐ
-        self.mute_toast_timer = 0               # ミュート切替時のトースト表示タイマー
-        self.mute_toast_msg   = ""              # ミュート切替時のトースト表示テキスト
+        # --- 天候・害虫システム ---
+        self.piece_count      = 0          # 累計設置ピース数
+        self.weather_type     = 'CLEAR'    # 現在の天候 ('CLEAR', 'RAIN', 'HEATWAVE', 'PEST', 'TYPHOON')
+        self.weather_counter  = 0          # 次の天候発生までのカウント (0〜25)
+        self.weather_duration = 0          # 現在の天候の残り持続ピース数 (0〜12)
+
         # --- ロックディレイ状態 ---
         self.is_landed        = False      # 現在ピースが接地中かどうか
         self.lock_timer       = 0          # 接地してからのフレーム数
@@ -1465,6 +1587,9 @@ class Tetris:
 
     # ---------- 次ピースをスポーン ----------
     def _spawn_next(self):
+        self.piece_count += 1
+        self._update_weather()
+
         self.current          = self.bag.pop()
         self.can_hold         = True
         self.is_landed        = False
@@ -1482,6 +1607,55 @@ class Tetris:
                 except Exception: pass
             else:
                 self._js_bgm('stop')
+
+    # ---------- 天候更新 ----------
+    def _update_weather(self):
+        if self.state != 'PLAYING' or self.game_over:
+            return
+
+        # 持続中の天候があればピース消費
+        if self.weather_type != 'CLEAR':
+            self.weather_duration -= 1
+            if self.weather_duration <= 0:
+                self.weather_type = 'CLEAR'
+                self.weather_counter = 0
+
+        # 快晴時、カウントを増やす
+        if self.weather_type == 'CLEAR':
+            self.weather_counter += 1
+            if self.weather_counter >= WEATHER_INTERVAL_PIECES:
+                self.weather_counter = 0
+                new_w = random.choice(WEATHER_TYPES)
+                self.weather_type = new_w
+                self.weather_duration = WEATHER_DURATION_PIECES
+
+                # 天候ごとの発動効果
+                if new_w == 'PEST':
+                    count = self.board.spawn_pests(random.randint(3, 5))
+                    msg = f"🐛 害虫大発生！({count}匹)" if count > 0 else "🐛 害虫警戒！"
+                    self.score_popups.append(
+                        ScorePopup(BOARD_X + BOARD_W // 2, BOARD_Y + BOARD_H // 3,
+                                   text=msg, color=(210, 240, 80))
+                    )
+                elif new_w == 'RAIN':
+                    self.score_popups.append(
+                        ScorePopup(BOARD_X + BOARD_W // 2, BOARD_Y + BOARD_H // 3,
+                                   text="🌧️ 恵みの雨！(スコア・ゲージ1.5倍)", color=(80, 180, 255))
+                    )
+                elif new_w == 'HEATWAVE':
+                    self.score_popups.append(
+                        ScorePopup(BOARD_X + BOARD_W // 2, BOARD_Y + BOARD_H // 3,
+                                   text="☀️ カンカン照り！(スピードUP)", color=(255, 140, 40))
+                    )
+                elif new_w == 'TYPHOON':
+                    self.score_popups.append(
+                        ScorePopup(BOARD_X + BOARD_W // 2, BOARD_Y + BOARD_H // 3,
+                                   text="🌀 台風接近！", color=(160, 120, 220))
+                    )
+
+                if self.snd_weather and not self.bgm_muted:
+                    self.snd_weather.play()
+                self._js_se('weather')
 
     # ---------- デンジャー判定 ----------
     def _is_danger(self):
@@ -1957,8 +2131,22 @@ class Tetris:
 
         # 行を消去してスコア更新
         self._popup_y = BOARD_Y + (min(self.flash_rows) * CELL) - 10
-        self.board.clear_lines()
+        _, killed_pests = self.board.clear_lines()
         self.flash_rows = []
+
+        # 害虫退治ボーナス
+        if killed_pests:
+            p_bonus = sum(PEST_TYPES[p]['score'] for p in killed_pests if p in PEST_TYPES) * self.level
+            self.score += p_bonus
+            if self.snd_pest_kill and not self.bgm_muted:
+                self.snd_pest_kill.play()
+            self._js_se('pest_kill')
+            names = list(set(PEST_TYPES[p]['name'] for p in killed_pests if p in PEST_TYPES))
+            self.score_popups.append(
+                ScorePopup(BOARD_X + BOARD_W // 2, self._popup_y - 22,
+                           text=f"害虫退治! ({','.join(names)}) +{p_bonus:,}",
+                           color=(180, 230, 80))
+            )
 
         # クリア数に応じてシェイク
         if cleared >= 4:
@@ -2030,6 +2218,9 @@ class Tetris:
 
         # ── スコア加算（base + combo）× level ──
         total_pts   = (base_pts + combo_pts) * self.level
+        if self.weather_type == 'RAIN':
+            total_pts = int(total_pts * 1.5)
+
         self.score += total_pts
         if self.score > self.hi_score:
             self.hi_score = self.score
@@ -2046,6 +2237,8 @@ class Tetris:
         # ── ゾーンゲージ蓄積（ゾーン発動中は増やさない） ──
         if not self.is_zone_active:
             gauge_add = cleared * 18 + (15 if tspin else 0)
+            if self.weather_type == 'RAIN':
+                gauge_add = int(gauge_add * 1.5)
             self.zone_gauge = min(ZONE_GAUGE_MAX, self.zone_gauge + gauge_add)
 
         # ── ガーベージ相殺：テトリス・T-Spin で予約済みガーベージをキャンセル ──
@@ -2427,6 +2620,8 @@ class Tetris:
         # ゾーン中は自動落下・自動ロックを停止（手動操作は有効）
         if not self.is_zone_active:
             speed = FALL_SOFT if self.soft_drop else self.fall_speed
+            if self.weather_type == 'HEATWAVE' and not self.soft_drop:
+                speed = max(1, int(speed / 1.3))
             self.fall_timer += 1
             if self.fall_timer >= speed:
                 self.fall_timer = 0
@@ -2560,6 +2755,26 @@ class Tetris:
         for p in self.bg_particles:
             p.draw(self.screen)
 
+        # 天候固有の背景演出
+        if self.weather_type == 'RAIN':
+            ticks = pygame.time.get_ticks()
+            for i in range(25):
+                rx = (i * 37 + ticks * 2) % SCREEN_W
+                ry = (i * 91 + ticks * 5) % SCREEN_H
+                pygame.draw.line(self.screen, (140, 210, 255), (rx, ry), (rx - 3, ry + 10), 1)
+        elif self.weather_type == 'HEATWAVE':
+            ticks = pygame.time.get_ticks()
+            pulse = 0.5 + 0.5 * math.sin(ticks / 260.0)
+            heat_s = pygame.Surface((SCREEN_W, SCREEN_H), pygame.SRCALPHA)
+            heat_s.fill((255, 120, 20, int(22 * pulse)))
+            self.screen.blit(heat_s, (0, 0))
+        elif self.weather_type == 'TYPHOON':
+            ticks = pygame.time.get_ticks()
+            for i in range(16):
+                wx = (i * 47 + ticks * 7) % SCREEN_W
+                wy = (i * 41 + ticks * 2) % SCREEN_H
+                pygame.draw.line(self.screen, (190, 160, 230), (wx, wy), (wx + 26, wy + 2), 1)
+
     # --- テーマ色でパネルボックスを描くヘルパー ---
     def _dpanel(self, rect, title=None):
         th = self.theme
@@ -2640,6 +2855,31 @@ class Tetris:
                 lbl    = self.f_sm.render(f"{int(self.zone_gauge)}%", True, th['c_dim'])
             self.screen.blit(lbl, lbl.get_rect(center=(lcx, bar_y + bar_h + 9)))
 
+        # 天候インジケーター
+        self._draw_weather_ui()
+
+    # --- 天候UIインジケーター ---
+    def _draw_weather_ui(self):
+        lx  = 8
+        lcx = lx + 75
+        th  = self.theme
+        w_rect = pygame.Rect(lx, 502, 150, 74)
+
+        col = WEATHER_COLORS.get(self.weather_type, C_WHITE)
+        self._dpanel(w_rect, "WEATHER")
+
+        icon = WEATHER_ICONS.get(self.weather_type, '☀️')
+        name = WEATHER_NAMES.get(self.weather_type, '快晴')
+        txt  = self.f_jp_sm.render(f"{icon} {name}", True, col)
+        self.screen.blit(txt, txt.get_rect(center=(lcx, 528)))
+
+        if self.weather_type != 'CLEAR':
+            sub_text = f"持続: あと{self.weather_duration}個"
+        else:
+            sub_text = f"変化まで: あと{WEATHER_INTERVAL_PIECES - self.weather_counter}個"
+        sub_txt = self.f_jp_sm.render(sub_text, True, th['c_dim'])
+        self.screen.blit(sub_txt, sub_txt.get_rect(center=(lcx, 554)))
+
     # --- ボード ---
     def _draw_board(self):
         bx, by = BOARD_X, BOARD_Y
@@ -2701,6 +2941,7 @@ class Tetris:
                     gz.fill((60, 140, 255, int(70 * pulse)))
                     self.screen.blit(gz, (bx + c*CELL - 2, by + r*CELL - 2))
                     continue
+                pest_type = self.board.pest_grid[r][c]
                 if r in flash_set:
                     # frac: 1.0(開始直後・真っ白) → 0.0(消える直前)
                     frac = self.flash_timer / FLASH_DURATION
@@ -2715,9 +2956,9 @@ class Tetris:
                     # ── ブロック本体: 白→元色へフェード ──
                     wf        = 0.35 + 0.65 * frac
                     flash_col = tuple(min(255, int(255*wf + v*(1-wf))) for v in col)
-                    draw_cell(self.screen, bx + c*CELL, by + r*CELL, flash_col)
+                    draw_cell(self.screen, bx + c*CELL, by + r*CELL, flash_col, pest_type=pest_type)
                 else:
-                    draw_cell(self.screen, bx + c*CELL, by + r*CELL, col)
+                    draw_cell(self.screen, bx + c*CELL, by + r*CELL, col, pest_type=pest_type)
 
         # ── ゾーン中：ライン消去時に「X LINES」を一時的（約1.25秒）にポップアップ表示してスーッとフェードアウト ──
         if self.is_zone_active and self.zone_stack_timer > 0 and self.zone_stack > 0:

@@ -299,6 +299,11 @@ __file__ = '/home/pyodide/tetris.py'
             tone(280, now, 0.25, 'sine', 0.20, 1100);
           } else if (type === 'garbage') {
             tone(90, now, 0.20, 'sawtooth', 0.15, 45);
+          } else if (type === 'weather') {
+            tone(523, now, 0.20, 'sine', 0.16, 920);
+            tone(659, now + 0.08, 0.20, 'sine', 0.16, 1174);
+          } else if (type === 'pest_kill') {
+            tone(1400, now, 0.12, 'sine', 0.22, 600);
           }
         };
 
