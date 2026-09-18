@@ -2164,6 +2164,8 @@ class Tetris:
             audio = window._bgmAudio
             if audio is not None:
                 if action == 'play':
+                    audio.volume = 0.0 if self.bgm_muted else 0.4
+                    window._seMuted = self.bgm_muted
                     audio.play()
                 elif action == 'stop':
                     audio.pause()
@@ -2171,15 +2173,17 @@ class Tetris:
                 elif action == 'pause':
                     audio.pause()
                 elif action == 'resume':
+                    audio.volume = 0.0 if self.bgm_muted else 0.4
+                    window._seMuted = self.bgm_muted
                     audio.play()
                 elif action == 'mute':
                     audio.volume = 0
+                    window._seMuted = True
                 elif action == 'unmute':
                     audio.volume = 0.4
-            if action == 'mute':
-                window._seMuted = True
-            elif action == 'unmute':
-                window._seMuted = False
+                    window._seMuted = False
+            else:
+                window._seMuted = self.bgm_muted
         except Exception:
             pass
 
@@ -2304,8 +2308,7 @@ class Tetris:
                                 pygame.mixer.music.set_volume(0.0 if self.bgm_muted else 0.4)
                             except Exception:
                                 pass
-                        if not self.bgm_muted:
-                            self._js_bgm('play')
+                        self._js_bgm('play')
                     return
 
                 # ── ゲーム中 (PLAYING) ──
