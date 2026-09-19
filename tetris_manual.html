@@ -3,890 +3,1336 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>大収穫！ 農業テトリス 説明書</title>
+<title>大収穫！ 農業テトリス 公式操作・システム説明書</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700;800&family=Noto+Sans+JP:wght@300;400;500;700;900&family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet">
+<link rel="icon" href="./favicon.ico" type="image/x-icon">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&display=swap');
-
   :root {
-    --bg:        #0a0e24;
-    --bg2:       #111830;
-    --accent:    #3a8fff;
-    --gold:      #ffc32d;
-    --rainbow:   #ffd700;
-    --drill:     #50dcff;
-    --zone:      #64d2ff;
-    --garbage:   #8a9aaa;
-    --danger:    #ff4444;
-    --text:      #d0e4ff;
-    --dim:       #6878a8;
-    --border:    #2a4080;
-    --panel:     #0e1830;
+    --bg-main:       #080d18;
+    --bg-card:       rgba(16, 25, 48, 0.75);
+    --bg-card-hover: rgba(24, 38, 70, 0.85);
+    --bg-elevated:   #131e38;
+    --border-color:  rgba(80, 130, 220, 0.22);
+    --border-bright: rgba(100, 180, 255, 0.45);
+    
+    --primary:       #38bdf8;
+    --primary-glow:  rgba(56, 189, 248, 0.35);
+    --gold:          #fbbf24;
+    --gold-glow:     rgba(251, 191, 36, 0.35);
+    --green:         #34d399;
+    --green-glow:    rgba(52, 211, 153, 0.35);
+    --danger:        #f87171;
+    --purple:        #c084fc;
+    --orange:        #fb923c;
+    
+    --text-main:     #f1f5f9;
+    --text-sub:      #cbd5e1;
+    --text-dim:      #8193b0;
+    
+    --shadow-soft:   0 12px 36px -8px rgba(0, 0, 0, 0.65);
+    --font-heading:  'Outfit', 'Noto Sans JP', sans-serif;
+    --font-body:     'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono:     'JetBrains Mono', monospace;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
+  html {
+    scroll-behavior: smooth;
+  }
+
   body {
-    font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic Pro', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.7;
-    font-size: 14px;
+    background-color: var(--bg-main);
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 189, 248, 0.15), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(52, 211, 153, 0.08), transparent 70%),
+      radial-gradient(ellipse 60% 40% at 20% 100%, rgba(251, 191, 36, 0.06), transparent 70%);
+    background-attachment: fixed;
+    color: var(--text-main);
+    font-family: var(--font-body);
+    line-height: 1.8;
+    font-size: 15px;
+    -webkit-font-smoothing: antialiased;
   }
 
   /* ========== COVER ========== */
-  .cover {
-    background: linear-gradient(160deg, #06082a 0%, #0d1840 50%, #06082a 100%);
-    border-bottom: 2px solid var(--border);
-    text-align: center;
-    padding: 60px 20px 50px;
+  .hero {
     position: relative;
+    padding: 70px 20px 50px;
+    text-align: center;
+    border-bottom: 1px solid var(--border-color);
+    background: linear-gradient(180deg, rgba(14, 22, 42, 0.9) 0%, rgba(8, 13, 24, 0.95) 100%);
     overflow: hidden;
   }
-  .cover::before {
+  .hero::before {
     content: '';
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(ellipse 60% 40% at 50% 60%, rgba(58,143,255,.08) 0%, transparent 70%);
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2338bdf8' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");
     pointer-events: none;
   }
-  .cover-blocks {
+  .hero-badges {
     display: flex;
     justify-content: center;
-    gap: 4px;
-    margin-bottom: 28px;
-  }
-  .cover-col { display: flex; flex-direction: column; gap: 4px; align-items: center; }
-  .blk {
-    width: 28px; height: 28px;
-    border-radius: 4px;
-    box-shadow: 0 2px 6px rgba(0,0,0,.5);
-  }
-  .cover h1 {
-    font-size: 40px;
-    font-weight: 900;
-    letter-spacing: 6px;
-    color: #fff;
-    text-shadow: 0 0 30px rgba(58,143,255,.6), 0 4px 16px rgba(0,0,0,.8);
-    margin-bottom: 8px;
-  }
-  .cover-sub {
-    font-size: 13px;
-    color: var(--dim);
-    letter-spacing: 3px;
-    text-transform: uppercase;
+    gap: 10px;
     margin-bottom: 20px;
+    flex-wrap: wrap;
   }
-  .cover-badge {
-    display: inline-block;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 5px 18px;
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    border-radius: 9999px;
     font-size: 12px;
-    color: var(--dim);
-    letter-spacing: 1px;
-  }
-
-  /* ========== LAYOUT ========== */
-  .container {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 24px 60px;
-  }
-
-  /* ========== SECTION ========== */
-  .section {
-    margin-top: 48px;
-  }
-  .section-title {
-    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.5px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-color);
+    backdrop-filter: blur(8px);
+    color: var(--text-sub);
   }
-  h2 {
-    font-size: 22px;
-    font-weight: 900;
-    color: #fff;
-    margin-bottom: 16px;
+  .pill-accent {
+    background: rgba(56, 189, 248, 0.15);
+    border-color: rgba(56, 189, 248, 0.4);
+    color: var(--primary);
   }
-  h3 {
-    font-size: 15px;
-    font-weight: 700;
+  .pill-green {
+    background: rgba(52, 211, 153, 0.15);
+    border-color: rgba(52, 211, 153, 0.4);
+    color: var(--green);
+  }
+  .pill-gold {
+    background: rgba(251, 191, 36, 0.15);
+    border-color: rgba(251, 191, 36, 0.4);
     color: var(--gold);
-    margin: 20px 0 8px;
   }
-  p { margin-bottom: 10px; color: var(--text); }
-
-  /* ========== PANEL ========== */
-  .panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px 24px;
-    margin-bottom: 16px;
-  }
-  .panel-title {
-    font-size: 11px;
-    font-weight: 700;
+  .hero h1 {
+    font-family: var(--font-heading);
+    font-size: clamp(34px, 6vw, 52px);
+    font-weight: 900;
     letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 14px;
+    color: #ffffff;
+    text-shadow: 0 0 35px var(--primary-glow), 0 4px 12px rgba(0,0,0,0.8);
+    margin-bottom: 12px;
+    line-height: 1.2;
+  }
+  .hero-subtitle {
+    font-size: clamp(14px, 2.5vw, 17px);
+    color: var(--text-sub);
+    max-width: 680px;
+    margin: 0 auto 24px;
+    font-weight: 400;
+  }
+  .hero-links {
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 24px;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 18px rgba(2, 132, 199, 0.45);
+    border: none;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(56, 189, 248, 0.6);
+  }
+  .btn-secondary {
+    background: var(--bg-elevated);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+  }
+  .btn-secondary:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-bright);
+    transform: translateY(-2px);
   }
 
-  /* ========== CONTROLS ========== */
-  .key-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 8px;
+  /* ========== CONTAINER & NAV ========== */
+  .wrapper {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
   }
-  .key-row {
+
+  .nav-toc {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 48px;
+    backdrop-filter: blur(12px);
+    box-shadow: var(--shadow-soft);
+  }
+  .toc-title {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--primary);
+    text-transform: uppercase;
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 7px 10px;
-    background: rgba(255,255,255,.03);
-    border-radius: 5px;
-    border: 1px solid rgba(255,255,255,.05);
+    gap: 8px;
   }
-  .key {
+  .toc-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 10px;
+  }
+  .toc-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: var(--text-sub);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 500;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.2s;
+  }
+  .toc-link:hover {
+    background: rgba(56, 189, 248, 0.12);
+    border-color: rgba(56, 189, 248, 0.35);
+    color: #ffffff;
+    transform: translateX(3px);
+  }
+  .toc-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--primary);
+    opacity: 0.8;
+  }
+
+  /* ========== SECTIONS ========== */
+  .section {
+    margin-bottom: 56px;
+    scroll-margin-top: 30px;
+  }
+  .sec-header {
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 12px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .sec-badge {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--primary);
+    background: rgba(56, 189, 248, 0.12);
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(56, 189, 248, 0.25);
+  }
+  .sec-title {
+    font-family: var(--font-heading);
+    font-size: 24px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: 0.5px;
+  }
+
+  /* ========== PANELS & CARDS ========== */
+  .card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-soft);
+    transition: border-color 0.2s;
+  }
+  .card:hover {
+    border-color: var(--border-bright);
+  }
+  .card-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--gold);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ========== KEYBOARD GRID ========== */
+  .key-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+  }
+  .key-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(10, 16, 32, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 10px 14px;
+    transition: all 0.2s;
+  }
+  .key-item:hover {
+    background: rgba(20, 32, 60, 0.65);
+    border-color: rgba(56, 189, 248, 0.3);
+  }
+  .key-cap {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: #1a2550;
-    border: 1px solid #3a5090;
-    border-bottom: 3px solid #1a2550;
-    border-radius: 5px;
-    padding: 3px 8px;
-    font-size: 11px;
+    background: linear-gradient(180deg, #24325a 0%, #151e36 100%);
+    border: 1px solid #455d94;
+    border-bottom: 3px solid #0f1526;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-family: var(--font-mono);
+    font-size: 12px;
     font-weight: 700;
-    color: #a0c0ff;
-    min-width: 36px;
-    white-space: nowrap;
-    box-shadow: 0 2px 4px rgba(0,0,0,.4);
+    color: #e0edff;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+    min-width: 44px;
+    text-align: center;
     flex-shrink: 0;
   }
-  .key-desc { font-size: 13px; color: var(--text); }
+  .key-action {
+    font-size: 13.5px;
+    color: var(--text-main);
+    font-weight: 500;
+  }
+  .key-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    display: block;
+  }
 
-  /* ========== TABLE ========== */
+  /* ========== TABLES ========== */
+  .table-responsive {
+    overflow-x: auto;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+  }
   table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 13px;
-    margin-bottom: 16px;
+    font-size: 13.5px;
+    background: rgba(12, 19, 36, 0.6);
   }
   th {
-    background: rgba(58,143,255,.12);
-    color: var(--accent);
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 9px 12px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-  }
-  td {
-    padding: 9px 12px;
-    border-bottom: 1px solid rgba(255,255,255,.05);
-    vertical-align: middle;
-  }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(255,255,255,.02); }
-
-  /* ========== BADGE ========== */
-  .badge {
-    display: inline-block;
-    border-radius: 4px;
-    padding: 2px 8px;
-    font-size: 11px;
+    background: rgba(56, 189, 248, 0.12);
+    color: var(--primary);
+    font-size: 12px;
     font-weight: 700;
     letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    white-space: nowrap;
   }
-  .badge-blue   { background: rgba(58,143,255,.18); color: #6ab0ff; border: 1px solid rgba(58,143,255,.3); }
-  .badge-gold   { background: rgba(255,195,45,.15); color: var(--gold); border: 1px solid rgba(255,195,45,.3); }
-  .badge-zone   { background: rgba(100,210,255,.15); color: var(--zone); border: 1px solid rgba(100,210,255,.3); }
-  .badge-danger { background: rgba(255,68,68,.15); color: #ff8888; border: 1px solid rgba(255,68,68,.3); }
-  .badge-item   { background: rgba(255,215,0,.15); color: var(--rainbow); border: 1px solid rgba(255,215,0,.3); }
-  .badge-drill  { background: rgba(80,220,255,.15); color: var(--drill); border: 1px solid rgba(80,220,255,.3); }
-  .badge-gray   { background: rgba(138,154,170,.15); color: var(--garbage); border: 1px solid rgba(138,154,170,.3); }
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: var(--text-sub);
+    vertical-align: middle;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+  tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+    color: #ffffff;
+  }
 
-  /* ========== ITEM BLOCKS ========== */
-  .item-card {
-    display: flex;
-    gap: 18px;
-    padding: 18px;
-    background: var(--panel);
-    border-radius: 8px;
-    margin-bottom: 12px;
+  /* ========== MINO / VEGGIE CARDS ========== */
+  .veggie-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
   }
-  .item-icon {
-    width: 52px; height: 52px;
+  .veggie-card {
+    background: rgba(14, 22, 42, 0.7);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .veggie-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-bright);
+  }
+  .veggie-icon {
+    width: 44px;
+    height: 44px;
     border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    flex-shrink: 0;
+    font-family: var(--font-heading);
+    font-size: 20px;
     font-weight: 900;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
   }
-  .item-icon-rainbow {
-    background: linear-gradient(135deg, #ff4444, #ff9900, #ffee00, #44ff44, #44aaff, #aa44ff);
-    box-shadow: 0 0 16px rgba(255,215,0,.4);
+  .veggie-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 2px;
   }
-  .item-icon-drill {
-    background: linear-gradient(135deg, #1a6080, #50dcff);
-    box-shadow: 0 0 16px rgba(80,220,255,.4);
+  .veggie-desc {
+    font-size: 12px;
+    color: var(--text-dim);
   }
-  .item-body h3 { margin-top: 0; }
-  .item-body p  { margin-bottom: 0; font-size: 13px; }
 
-  /* ========== GAUGE BAR ========== */
-  .gauge-row {
+  /* ========== ITEM CARDS ========== */
+  .item-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .item-box {
+    background: rgba(14, 22, 42, 0.75);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    gap: 18px;
+    transition: all 0.25s;
+  }
+  .item-box:hover {
+    border-color: var(--border-bright);
+    background: rgba(20, 32, 60, 0.85);
+  }
+  .item-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    font-weight: 900;
+    flex-shrink: 0;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+  }
+  .item-content h3 {
+    font-size: 17px;
+    font-weight: 800;
+    color: #ffffff;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .item-content p {
+    font-size: 13px;
+    color: var(--text-sub);
+    line-height: 1.6;
+  }
+
+  /* ========== WEATHER CARDS ========== */
+  .weather-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .weather-card {
+    background: rgba(12, 19, 36, 0.75);
+    border: 1px solid;
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+    transition: transform 0.2s;
+  }
+  .weather-card:hover {
+    transform: translateY(-3px);
+  }
+  .weather-emoji {
+    font-size: 32px;
+    margin-bottom: 8px;
+    display: inline-block;
+  }
+  .weather-name {
+    font-size: 16px;
+    font-weight: 800;
+    margin-bottom: 4px;
+  }
+  .weather-effect {
+    font-size: 12.5px;
+    color: var(--text-sub);
+    line-height: 1.5;
+  }
+
+  /* ========== PEST LIST ========== */
+  .pest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .pest-card {
+    background: rgba(10, 16, 30, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 12px;
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 10px;
   }
-  .gauge-label { width: 120px; font-size: 13px; color: var(--dim); flex-shrink: 0; }
-  .gauge-bar-bg {
-    flex: 1;
-    height: 8px;
-    background: rgba(255,255,255,.08);
-    border-radius: 4px;
-    overflow: hidden;
+  .pest-badge {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    font-weight: 900;
+    flex-shrink: 0;
   }
-  .gauge-bar-fill {
-    height: 100%;
-    border-radius: 4px;
-  }
-  .gauge-val { width: 44px; text-align: right; font-size: 12px; color: var(--dim); }
 
-  /* ========== THEME CARDS ========== */
-  .theme-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px;
+  /* ========== HIGHLIGHT BADGES ========== */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-family: var(--font-mono);
   }
-  .theme-card {
-    border-radius: 7px;
-    padding: 14px 16px;
-    border: 1px solid;
-    font-size: 13px;
-  }
-  .theme-name { font-weight: 700; font-size: 15px; margin-bottom: 3px; }
-  .theme-level { font-size: 11px; opacity: .7; margin-bottom: 6px; }
-  .theme-desc  { font-size: 12px; opacity: .8; }
+  .badge-blue    { background: rgba(56, 189, 248, 0.18); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); }
+  .badge-gold    { background: rgba(251, 191, 36, 0.18); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.35); }
+  .badge-green   { background: rgba(52, 211, 153, 0.18); color: #34d399; border: 1px solid rgba(52, 211, 153, 0.35); }
+  .badge-red     { background: rgba(248, 113, 113, 0.18); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.35); }
+  .badge-purple  { background: rgba(192, 132, 252, 0.18); color: #c084fc; border: 1px solid rgba(192, 132, 252, 0.35); }
 
   /* ========== TIPS ========== */
-  .tip {
+  .tip-box {
     display: flex;
-    gap: 12px;
-    padding: 13px 16px;
-    background: rgba(58,143,255,.06);
-    border-left: 3px solid var(--accent);
-    border-radius: 0 6px 6px 0;
-    margin-bottom: 10px;
-    font-size: 13px;
+    gap: 16px;
+    padding: 16px 20px;
+    background: rgba(56, 189, 248, 0.06);
+    border-left: 4px solid var(--primary);
+    border-radius: 0 10px 10px 0;
+    margin-bottom: 14px;
   }
-  .tip-num {
-    font-size: 18px;
+  .tip-idx {
+    font-family: var(--font-heading);
+    font-size: 22px;
     font-weight: 900;
-    color: var(--accent);
-    opacity: .6;
-    flex-shrink: 0;
-    line-height: 1.4;
+    color: var(--primary);
+    line-height: 1;
+    opacity: 0.8;
   }
-
-  /* ========== SCORE TABLE ========== */
-  .pts { color: var(--gold); font-weight: 700; }
-  .pts-b2b { color: #ff9900; font-weight: 700; }
-
-  /* ========== DIVIDER ========== */
-  hr { border: none; border-top: 1px solid var(--border); margin: 36px 0; }
+  .tip-text {
+    font-size: 13.5px;
+    color: var(--text-sub);
+  }
 
   /* ========== FOOTER ========== */
-  .footer {
+  footer {
     text-align: center;
-    padding: 30px;
-    font-size: 12px;
-    color: var(--dim);
-    border-top: 1px solid var(--border);
-    margin-top: 48px;
+    padding: 50px 20px 30px;
+    border-top: 1px solid var(--border-color);
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  footer a {
+    color: var(--primary);
+    text-decoration: none;
+  }
+  footer a:hover {
+    text-decoration: underline;
   }
 
   /* ========== RESPONSIVE ========== */
-  @media (max-width: 600px) {
-    .cover h1 { font-size: 36px; letter-spacing: 6px; }
-    .theme-grid { grid-template-columns: 1fr; }
+  @media (max-width: 768px) {
+    .item-grid { grid-template-columns: 1fr; }
     .key-grid { grid-template-columns: 1fr; }
+    .hero { padding: 45px 16px 35px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ===== COVER ===== -->
-<div class="cover">
-  <div class="cover-blocks">
-    <div class="cover-col">
-      <div class="blk" style="background:#00dcf0"></div>
-      <div class="blk" style="background:#00dcf0"></div>
-    </div>
-    <div class="cover-col">
-      <div class="blk" style="background:#f0a000"></div>
-      <div class="blk" style="background:#a000f0"></div>
-      <div class="blk" style="background:#a000f0"></div>
-      <div class="blk" style="background:#a000f0"></div>
-    </div>
-    <div class="cover-col">
-      <div class="blk" style="background:#00f050"></div>
-      <div class="blk" style="background:#f00030"></div>
-      <div class="blk" style="background:#f00030"></div>
-      <div class="blk" style="background:#2050f0"></div>
-      <div class="blk" style="background:#2050f0"></div>
-    </div>
-    <div class="cover-col">
-      <div class="blk" style="background:#f0e000"></div>
-      <div class="blk" style="background:#f0e000"></div>
-      <div class="blk" style="background:#00f050"></div>
-      <div class="blk" style="background:#2050f0"></div>
-    </div>
-    <div class="cover-col">
-      <div class="blk" style="background:#f0a000"></div>
-      <div class="blk" style="background:#f0a000"></div>
-      <div class="blk" style="background:#a000f0"></div>
-    </div>
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="hero-badges">
+    <span class="pill pill-accent">🌾 Modern Hybrid Tetris</span>
+    <span class="pill pill-green">宮崎農業特産モチーフ</span>
+    <span class="pill pill-gold">Ver 2026 最新版</span>
   </div>
   <h1>大収穫！ 農業テトリス</h1>
-  <div class="cover-sub">Modern Hybrid Tetris Manual</div>
-  <div class="cover-badge">Pygame &amp; WebAssembly Edition &nbsp;|&nbsp; Python 3</div>
-</div>
-
-<div class="container">
-
-<!-- ===== 操作方法 ===== -->
-<div class="section">
-  <div class="section-title">Section 01</div>
-  <h2>操作方法</h2>
-  <div class="panel">
-    <div class="panel-title">キーボード操作一覧</div>
-    <div class="key-grid">
-      <div class="key-row"><span class="key">← →</span><span class="key-desc">左右移動（長押しでDAS連続移動）</span></div>
-      <div class="key-row"><span class="key">↓</span><span class="key-desc">ソフトドロップ（通常より高速落下）</span></div>
-      <div class="key-row"><span class="key">↑ / X</span><span class="key-desc">時計回りに回転（SRS 右回転）</span></div>
-      <div class="key-row"><span class="key">Z</span><span class="key-desc">反時計回りに回転（SRS 左回転）</span></div>
-      <div class="key-row"><span class="key">Space</span><span class="key-desc">ハードドロップ（即着地＆ロック）</span></div>
-      <div class="key-row"><span class="key">C / Shift</span><span class="key-desc">ホールド（ピースを保存）</span></div>
-      <div class="key-row"><span class="key">Tab</span><span class="key-desc">DAS / ARR 操作感切替（NORMAL / FAST / PRO）</span></div>
-      <div class="key-row"><span class="key">Enter</span><span class="key-desc">ゾーン発動（ゲージ満タン時）</span></div>
-      <div class="key-row"><span class="key">P</span><span class="key-desc">ポーズ / 再開</span></div>
-      <div class="key-row"><span class="key">M</span><span class="key-desc">BGM ミュート切替</span></div>
-      <div class="key-row"><span class="key">R</span><span class="key-desc">タイトルへ戻る / リスタート</span></div>
-    </div>
+  <div class="hero-subtitle">
+    公式SRSウォールキック・DAS/ARR切替・ゾーンシステムに、天候変化や害虫駆除、宮崎の特産野菜・果物を融合させた本格テトリスゲームの公式説明書です。
   </div>
-  <p>ソフトドロップ中は 1 マス落下ごとに <span class="pts">+1 点</span>が加算されます。<br>
-  ハードドロップはソフトドロップより速く落とせますが得点加算はありません。</p>
-</div>
-
-<hr>
-
-<!-- ===== 基本ルール ===== -->
-<div class="section">
-  <div class="section-title">Section 02</div>
-  <h2>基本ルール</h2>
-
-  <p>7 種類のテトリミノ（I / O / T / S / Z / J / L）をボードに積み重ね、横一列を埋めると「ライン消去」が発生します。
-  ライン消去でスコアが加算され、10 ライン消去ごとにレベルが上がります。ブロックがボード最上段を超えると<span style="color:var(--danger)">ゲームオーバー</span>です。</p>
-
-  <h3>7 バッグシステム</h3>
-  <p>ピースは 7 種類を 1 セットにしてランダムに並べた「バッグ」から順番に出てきます。同じピースが極端に偏って出ることはありません。</p>
-
-  <h3>ゴーストブロック</h3>
-  <p>現在のピースが落下すると着地する位置を半透明の枠で示します。着地位置の確認に活用しましょう。</p>
-
-  <h3>ホールド</h3>
-  <p><span class="key">C</span> または <span class="key">Shift</span> を押すと現在のピースをホールドに保存できます。ホールドは 1 ピース設置するごとに 1 回だけ使用可能です（連続使用不可）。</p>
-
-  <h3>ロックディレイ</h3>
-  <p>ピースが着地しても 0.5 秒間（30 フレーム）はロックされません。この間に移動・回転することで猶予を延長できます（最大 15 回まで延長可能）。</p>
-</div>
-
-<hr>
-
-<!-- ===== スコア ===== -->
-<div class="section">
-  <div class="section-title">Section 03</div>
-  <h2>スコアシステム</h2>
-
-  <div class="panel">
-    <div class="panel-title">基本点（× レベル）</div>
-    <table>
-      <thead><tr><th>消去ライン数</th><th>名称</th><th>基礎点</th></tr></thead>
-      <tbody>
-        <tr><td>1 ライン</td><td>SINGLE</td><td class="pts">100</td></tr>
-        <tr><td>2 ライン</td><td>DOUBLE</td><td class="pts">300</td></tr>
-        <tr><td>3 ライン</td><td>TRIPLE</td><td class="pts">500</td></tr>
-        <tr><td>4 ライン</td><td>TETRIS</td><td class="pts">800</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="panel">
-    <div class="panel-title">T-Spin ボーナス（× レベル）</div>
-    <table>
-      <thead><tr><th>種別</th><th>0 ライン</th><th>1 ライン</th><th>2 ライン</th><th>3 ライン</th></tr></thead>
-      <tbody>
-        <tr><td>T-SPIN</td><td class="pts">400</td><td class="pts">800</td><td class="pts">1,200</td><td class="pts">1,600</td></tr>
-        <tr><td>T-SPIN MINI</td><td class="pts">100</td><td class="pts">200</td><td class="pts">400</td><td>—</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>Back-to-Back（B2B）ボーナス</h3>
-  <p>テトリス（4 ライン消し）または T-Spin 消去を <strong>連続</strong> して決めると、基礎点が <span class="pts-b2b">1.5 倍</span>になります。
-  普通のライン消去（1〜3 ライン・T-Spin なし）を行うと B2B リセットされます。</p>
-
-  <h3>コンボボーナス</h3>
-  <p>ライン消去を連続すると「コンボ」が発生し、<span class="pts">50 × コンボ数 × レベル</span> の追加点が入ります。
-  ライン消去なしでピースを設置するとコンボはリセットされます。</p>
-
-  <div class="panel">
-    <div class="panel-title">スコアポップアップの見方</div>
-    <p style="font-size:13px">ライン消去時、ボード上に獲得点数が数字でふわっと浮かび上がります。<br>
-    バナーテキスト（例：<span style="color:var(--gold)">BACK-TO-BACK T-SPIN DOUBLE!</span>）もあわせて表示されます。</p>
+  <div class="hero-links">
+    <a href="https://maichi333.github.io/agri-tetris/" target="_blank" class="btn btn-primary">
+      <span>🎮 GitHub Pagesでプレイ</span>
+    </a>
+    <a href="https://my-cloudflare-site.maichi333.workers.dev/tetris/" target="_blank" class="btn btn-secondary">
+      <span>⚡ Cloudflare Workersでプレイ</span>
+    </a>
   </div>
 </div>
 
-<hr>
+<div class="wrapper">
 
-<!-- ===== T-SPIN ===== -->
-<div class="section">
-  <div class="section-title">Section 04</div>
-  <h2>T-Spin（ティースピン）</h2>
-
-  <p>T ピースを回転させながら隙間に差し込む上級テクニックです。判定条件は以下のとおりです。</p>
-
-  <div class="panel">
-    <table>
-      <thead><tr><th>判定</th><th>条件</th></tr></thead>
-      <tbody>
-        <tr>
-          <td><span class="badge badge-gold">T-SPIN</span></td>
-          <td>最後の操作が回転であり、T ピースの 4 隅のうち <strong>3 つ以上</strong>にブロックまたは壁がある</td>
-        </tr>
-        <tr>
-          <td><span class="badge badge-blue">T-SPIN MINI</span></td>
-          <td>最後の操作が回転であり、T の正面側 2 隅のどちらかが空いている</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-
-  <p>T-Spin は高得点かつ B2B の対象になるため、積極的に狙う価値があります。</p>
-</div>
-
-<hr>
-
-<!-- ===== SRS ===== -->
-<div class="section">
-  <div class="section-title">Section 05</div>
-  <h2>SRS（スーパーローテーションシステム）</h2>
-
-  <p>回転時に通常の位置では引っかかる場合でも、最大 4 段階の「ウォールキック」を試みて回転できる位置を探します。
-  これにより、壁際や隙間での高度な回転操作（T-Spin など）が可能になります。</p>
-  <p>I ピースには専用のウォールキックテーブルが適用されます。O ピースは回転しません。</p>
-</div>
-
-<hr>
-
-<!-- ===== ITEMS ===== -->
-<div class="section">
-  <div class="section-title">Section 06</div>
-  <h2>アイテムブロック</h2>
-
-  <p>通常のピースが <strong>18% の確率</strong>で特殊なアイテムブロックになります。アイテムブロックはネクスト表示の時点では分からず、設置した瞬間に効果が発動します。</p>
-
-  <div class="item-card">
-    <div class="item-icon item-icon-rainbow">★</div>
-    <div class="item-body">
-      <h3><span class="badge badge-item">RAINBOW</span> &nbsp;恵みの雨（列全消去）</h3>
-      <p>設置した瞬間、そのピースが含まれる<strong>全ての行を強制消去</strong>します（揃っていなくても消去）。
-      消去行数 × 200 × レベルのボーナスが加算されます。<br>
-      ブロック色がリアルタイムにレインボーサイクルし、キラキラと輝いて目立ちます。</p>
+  <!-- ===== 目次 (TOC) ===== -->
+  <div class="nav-toc">
+    <div class="toc-title">📋 説明書目次 (TABLE OF CONTENTS)</div>
+    <div class="toc-grid">
+      <a href="#sec-controls" class="toc-link"><span class="toc-num">01</span><span>操作方法（キー一覧）</span></a>
+      <a href="#sec-rules" class="toc-link"><span class="toc-num">02</span><span>基本ルール・7バッグ</span></a>
+      <a href="#sec-pieces" class="toc-link"><span class="toc-num">03</span><span>宮崎特産テトリミノ</span></a>
+      <a href="#sec-items" class="toc-link"><span class="toc-num">04</span><span>農業アイテムシステム</span></a>
+      <a href="#sec-weather" class="toc-link"><span class="toc-num">05</span><span>天候＆害虫システム</span></a>
+      <a href="#sec-zone" class="toc-link"><span class="toc-num">06</span><span>ゾーンシステム（ZONE）</span></a>
+      <a href="#sec-garbage" class="toc-link"><span class="toc-num">07</span><span>ガーベージ（お邪魔行）</span></a>
+      <a href="#sec-score" class="toc-link"><span class="toc-num">08</span><span>スコア・B2B・コンボ</span></a>
+      <a href="#sec-srs" class="toc-link"><span class="toc-num">09</span><span>SRS &amp; T-Spin 判定</span></a>
+      <a href="#sec-themes" class="toc-link"><span class="toc-num">10</span><span>四季のビジュアルテーマ</span></a>
+      <a href="#sec-audio" class="toc-link"><span class="toc-num">11</span><span>サウンド＆デンジャー</span></a>
+      <a href="#sec-ui" class="toc-link"><span class="toc-num">12</span><span>画面レイアウト図解</span></a>
+      <a href="#sec-tips" class="toc-link"><span class="toc-num">13</span><span>大収穫への攻略ヒント</span></a>
+      <a href="#sec-profile" class="toc-link"><span class="toc-num">14</span><span>開発者まいちプロフィール</span></a>
     </div>
   </div>
 
-  <div class="item-card">
-    <div class="item-icon item-icon-drill" style="color:#0a2a3a; font-size:26px; font-weight:900">耕</div>
-    <div class="item-body">
-      <h3><span class="badge badge-drill">DRILL</span> &nbsp;耕運機（縦貫通破壊）</h3>
-      <p>設置した瞬間、ピース各列の<strong>真下 2〜3 マスのブロックを破壊</strong>し、上のブロックが落下します。
-      破壊数 × 80 × レベルのボーナスが加算されます。<br>
-      <span style="color:var(--garbage)">ガーベージ行（お邪魔行）</span>を破壊した場合は通常の <strong>3 倍</strong>のボーナスになり、予約ガーベージもキャンセルされます。</p>
+  <!-- ===== SECTION 01: CONTROLS ===== -->
+  <div class="section" id="sec-controls">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 01</span>
+      <h2 class="sec-title">操作方法（キーボード一覧）</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">⌨️ キーバインド早見表</div>
+      <div class="key-grid">
+        <div class="key-item">
+          <span class="key-cap">← →</span>
+          <div>
+            <div class="key-action">左右移動</div>
+            <span class="key-sub">長押しで高速自動リピート（DAS）</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">↓</span>
+          <div>
+            <div class="key-action">ソフトドロップ</div>
+            <span class="key-sub">1マス落下につき +1点加算</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">↑ / X</span>
+          <div>
+            <div class="key-action">時計回り（右回転）</div>
+            <span class="key-sub">公式SRSウォールキック対応</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">Z</span>
+          <div>
+            <div class="key-action">反時計回り（左回転）</div>
+            <span class="key-sub">公式SRSウォールキック対応</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">Space</span>
+          <div>
+            <div class="key-action">ハードドロップ</div>
+            <span class="key-sub">即時最下段へ着地＆固定</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">C / Shift</span>
+          <div>
+            <div class="key-action">ホールド</div>
+            <span class="key-sub">1ピース設置につき1回のみキープ可能</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">Tab</span>
+          <div>
+            <div class="key-action">DAS / ARR 切替</div>
+            <span class="key-sub">NORMAL → FAST → PRO を瞬時に循環</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">Enter</span>
+          <div>
+            <div class="key-action">ゾーン発動</div>
+            <span class="key-sub">ゲージ満タン時に時間停止フィーバー突入</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">M</span>
+          <div>
+            <div class="key-action">BGMミュート切替</div>
+            <span class="key-sub">消音 ⇄ 音声再生を即時トグル</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">[ / -</span>
+          <div>
+            <div class="key-action">音量ダウン（-10%）</div>
+            <span class="key-sub">JIS/US配列・テンキー[-]にも対応</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">] / +</span>
+          <div>
+            <div class="key-action">音量アップ（+10%）</div>
+            <span class="key-sub">JIS/US配列・テンキー[+]にも対応</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">P</span>
+          <div>
+            <div class="key-action">ポーズ / 再開</div>
+            <span class="key-sub">タイマーおよびBGMを一時停止</span>
+          </div>
+        </div>
+        <div class="key-item">
+          <span class="key-cap">R</span>
+          <div>
+            <div class="key-action">タイトルへ戻る / リスタート</div>
+            <span class="key-sub">プレイ中・ゲームオーバー時に有効</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="item-card">
-    <div class="item-icon" style="background:#ffa020; color:#4a2000; font-size:26px; font-weight:900; box-shadow:0 0 16px rgba(255,160,32,.5)">肥</div>
-    <div class="item-body">
-      <h3><span class="badge" style="background:rgba(255,160,32,.2); color:#ffb040; border:1px solid rgba(255,160,32,.4)">COMPOST</span> &nbsp;完熟堆肥（豊作ボーナス＆ゾーン蓄積）</h3>
-      <p>土壌に栄養を供給する特製堆肥。設置した瞬間に<strong>大量の豊作ボーナススコア</strong>（セル数 × 350 × レベル）を獲得し、さらに<strong>ゾーンゲージが +25% 蓄積</strong>されます。</p>
+  <!-- ===== SECTION 02: RULES ===== -->
+  <div class="section" id="sec-rules">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 02</span>
+      <h2 class="sec-title">基本ルール ＆ 競技テトリス仕様</h2>
     </div>
-  </div>
-
-  <div class="item-card">
-    <div class="item-icon" style="background:#40e070; color:#053010; font-size:26px; font-weight:900; box-shadow:0 0 16px rgba(64,224,112,.5)">刈</div>
-    <div class="item-body">
-      <h3><span class="badge" style="background:rgba(64,224,112,.2); color:#50f080; border:1px solid rgba(64,224,112,.4)">WEEDER</span> &nbsp;除草・草刈機（ガーベージ一掃）</h3>
-      <p>畑の雑草や邪魔な石を一掃。盤面最下部の<strong>ガーベージブロック（お邪魔行）を最大 2 行完全に刈り取って消去</strong>します（ガーベージがない場合は最下段の通常ブロック行を 1 行消去）。予約中のガーベージも軽減されます。</p>
-    </div>
-  </div>
-</div>
-
-<hr>
-
-<!-- ===== ZONE ===== -->
-<div class="section">
-  <div class="section-title">Section 07</div>
-  <h2>ゾーンシステム</h2>
-
-  <p>時間を止めて連鎖を狙う特殊モードです。大量のラインを一度に消去して爆発的なスコアを狙えます。</p>
-
-  <h3>ゾーンゲージの溜め方</h3>
-  <div class="panel">
-    <div class="gauge-row">
-      <span class="gauge-label">1 ライン消去</span>
-      <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:18%; background:var(--zone)"></div></div>
-      <span class="gauge-val" style="color:var(--zone)">+18%</span>
-    </div>
-    <div class="gauge-row">
-      <span class="gauge-label">2 ライン消去</span>
-      <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:36%; background:var(--zone)"></div></div>
-      <span class="gauge-val" style="color:var(--zone)">+36%</span>
-    </div>
-    <div class="gauge-row">
-      <span class="gauge-label">3 ライン消去</span>
-      <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:54%; background:var(--zone)"></div></div>
-      <span class="gauge-val" style="color:var(--zone)">+54%</span>
-    </div>
-    <div class="gauge-row">
-      <span class="gauge-label">4 ライン消去</span>
-      <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:72%; background:var(--zone)"></div></div>
-      <span class="gauge-val" style="color:var(--zone)">+72%</span>
-    </div>
-    <div class="gauge-row">
-      <span class="gauge-label">T-Spin（追加）</span>
-      <div class="gauge-bar-bg"><div class="gauge-bar-fill" style="width:15%; background:#aa88ff"></div></div>
-      <span class="gauge-val" style="color:#aa88ff">+15%</span>
-    </div>
-  </div>
-
-  <h3>ゾーン発動（<span class="key" style="display:inline-flex; font-size:11px;">Enter</span>）</h3>
-  <p>ゲージが 100% になったら <span class="key">Enter</span> キーで発動します。<br>
-  発動中は<strong>ピースの自動落下・自動ロックが停止</strong>します（手動操作は有効）。<br>
-  ライン消去してもその場では消えず、<span style="color:var(--zone)">青く光るゾーン行</span>に変換されてボード内に残ります。</p>
-
-  <h3>ゾーン終了（約 14 秒後）</h3>
-  <p>ゾーン時間が終了した瞬間、蓄積された全ゾーン行が一括消去され、残ったブロックが重力で下に詰まります。
-  消去ライン数に応じた超高額ボーナスが付与されます。</p>
-
-  <div class="panel">
-    <div class="panel-title">ゾーン終了ボーナス（× レベル）</div>
-    <table>
-      <thead><tr><th>蓄積ライン</th><th>称号</th><th>ボーナス計算</th></tr></thead>
-      <tbody>
-        <tr><td>1〜3</td><td>ZONE LINE!</td><td class="pts">N² × 450</td></tr>
-        <tr><td>4〜5</td><td>ZONE CLEAR!</td><td class="pts">N² × 450</td></tr>
-        <tr><td>6〜8</td><td>ZONE TETRIS!</td><td class="pts">N² × 450</td></tr>
-        <tr><td>9〜11</td><td>ZONE ULTRA!</td><td class="pts">N² × 450</td></tr>
-        <tr><td>12〜14</td><td>ZONE MASTER!</td><td class="pts">N² × 450</td></tr>
-        <tr><td>15〜17</td><td>ZONE PERFECT!</td><td class="pts">N² × 450</td></tr>
-        <tr><td>18 以上</td><td style="color:var(--gold); font-weight:900">ULTIMATRIS!!</td><td class="pts">N² × 450</td></tr>
-      </tbody>
-    </table>
-    <p style="font-size:12px; color:var(--dim); margin-top:6px">N = 蓄積ライン数。例：18ライン → 18² × 450 × レベル = 145,800 × レベル</p>
-  </div>
-
-  <p>ゾーン中はガーベージ行のせり上がりが一時停止します。ピンチのときに活用しましょう。</p>
-</div>
-
-<hr>
-
-<!-- ===== GARBAGE ===== -->
-<div class="section">
-  <div class="section-title">Section 08</div>
-  <h2>ガーベージシステム（お邪魔行）</h2>
-
-  <p>一定時間ごとに<span style="color:var(--garbage)">グレーのお邪魔行（ガーベージ）</span>がボード下部からせり上がってきます。
-  各行には 1 列だけ穴が空いており、その穴を使ってブロックを落とし込んでいく必要があります。</p>
-
-  <h3>発生タイミング（レベルスケーリング）</h3>
-  <div class="panel">
-    <table>
-      <thead><tr><th>レベル</th><th>発生間隔</th><th>行数</th></tr></thead>
-      <tbody>
-        <tr><td>1〜4</td><td>30 秒</td><td>1 行</td></tr>
-        <tr><td>5〜9</td><td>25 秒</td><td>1 行</td></tr>
-        <tr><td>10〜14</td><td>20 秒</td><td>2 行</td></tr>
-        <tr><td>15〜19</td><td>15 秒</td><td>2 行</td></tr>
-        <tr><td>20 以上</td><td>10 秒（最短）</td><td>3 行</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>警告演出</h3>
-  <p>せり上がる <strong>3 秒前</strong>に「ガガガッ」という重低音の警告音が鳴り、ボード右側に<span style="color:var(--danger)">赤い警告バー</span>と「<span style="color:var(--danger); font-weight:bold">！</span>」マークが点滅表示されます。バーの高さが発生までの残り時間を示しています。</p>
-
-  <h3>ガーベージの相殺</h3>
-  <p>警告中（赤バー表示中）に以下のアクションを決めると、予約済みのガーベージを<span style="color:#ff8888">キャンセル</span>できます。</p>
-  <div class="panel">
-    <table>
-      <thead><tr><th>アクション</th><th>効果</th></tr></thead>
-      <tbody>
-        <tr><td><span class="badge badge-gold">TETRIS（4 ライン消し）</span></td><td>予約ガーベージをキャンセル＋タイマーリセット</td></tr>
-        <tr><td><span class="badge badge-blue">T-Spin（ライン消し付き）</span></td><td>予約ガーベージをキャンセル＋タイマーリセット</td></tr>
-        <tr><td><span class="badge badge-drill">DRILL でガーベージ破壊</span></td><td>3 倍ボーナス＋予約キャンセル</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <p>ガーベージ行が押し上げによってボード最上段を超えると即座に<span style="color:var(--danger)">ゲームオーバー</span>となります。
-  ゾーン発動中はガーベージの進行が停止します。</p>
-</div>
-
-<hr>
-
-<!-- ===== THEMES ===== -->
-<div class="section">
-  <div class="section-title">Section 09</div>
-  <h2>ビジュアルテーマ</h2>
-
-  <p>レベルが 5 上がるごとにボードの背景・色・パーティクルが自動的に変化します。</p>
-
-  <div class="theme-grid">
-    <div class="theme-card" style="background:rgba(16,26,14,.6); border-color:#488a36">
-      <div class="theme-name" style="color:#dcfce7">🌱 春の畑</div>
-      <div class="theme-level" style="color:#86efac">Lv 1〜5</div>
-      <div class="theme-desc" style="color:#bbf7d0">播種と芽吹きの季節。若葉のパーティクルが穏やかに舞います。</div>
-    </div>
-    <div class="theme-card" style="background:rgba(8,26,38,.6); border-color:#2d96b4">
-      <div class="theme-name" style="color:#cffafe">💧 夏の水田</div>
-      <div class="theme-level" style="color:#67e8f9">Lv 6〜10</div>
-      <div class="theme-desc" style="color:#a5f3fc">青々とした稲穂と清流。水滴のバブルパーティクルが漂います。</div>
-    </div>
-    <div class="theme-card" style="background:rgba(42,20,6,.6); border-color:#d2731c">
-      <div class="theme-name" style="color:#ffedd5">🍂 秋の果樹園</div>
-      <div class="theme-level" style="color:#fdba74">Lv 11〜15</div>
-      <div class="theme-desc" style="color:#fed7aa">完熟フルーツと実りの夕暮れ。黄金の実りの光が灯ります。</div>
-    </div>
-    <div class="theme-card" style="background:rgba(24,8,36,.6); border-color:#e1b92d">
-      <div class="theme-name" style="color:#fef08a">🏮 大収穫祭</div>
-      <div class="theme-level" style="color:#fde047">Lv 16 以上</div>
-      <div class="theme-desc" style="color:#fef9c3">祝祭の直売所と夜市。満天の星と提灯の光が瞬きます。</div>
-    </div>
-  </div>
-</div>
-
-<hr>
-
-<!-- ===== DANGER ===== -->
-<div class="section">
-  <div class="section-title">Section 10</div>
-  <h2>デンジャーシステム</h2>
-
-  <p>ボードの<strong>上から 4 行以内</strong>にブロックが積み上がると、デンジャー状態になります。</p>
-  <ul style="padding-left:20px; margin-bottom:12px; font-size:13px; line-height:2">
-    <li>BGM 音量が自動的に下がります（通常 40% → デンジャー 22%）</li>
-    <li>低音の<strong>心拍音</strong>が鳴り始め、積み高さに応じて間隔が短くなります</li>
-    <li>ブロックを減らしてデンジャー解除されると、音量・心拍音が元に戻ります</li>
-  </ul>
-</div>
-
-<hr>
-
-<!-- ===== DYNAMIC AUDIO ===== -->
-<div class="section">
-  <div class="section-title">Section 11</div>
-  <h2>ダイナミックオーディオ</h2>
-
-  <p>ゲームの状況に合わせて効果音がリアルタイムで変化します。</p>
-
-  <div class="panel">
-    <table>
-      <thead><tr><th>状況</th><th>効果音の変化</th></tr></thead>
-      <tbody>
-        <tr><td>レベルアップ</td><td>回転音の周波数・倍音が上昇し、ロック音がより力強くなる</td></tr>
-        <tr><td>コンボ継続</td><td>ライン消去音のピッチがコンボ数に応じて最大 +8 半音上昇</td></tr>
-        <tr><td>デンジャー</td><td>心拍音が鳴り始め、積み高さで拍間隔が変化</td></tr>
-        <tr><td>ゾーン発動</td><td>「キィィィィン！」という高音のゾーン突入音が鳴る</td></tr>
-        <tr><td>ガーベージ警告</td><td>「ガガガッ」という低周波地響き音が鳴る</td></tr>
-        <tr><td>アイテム発動</td><td>「ピコーン！」という上昇チャープ音が鳴る</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<hr>
-
-<!-- ===== LEVEL ===== -->
-<div class="section">
-  <div class="section-title">Section 12</div>
-  <h2>レベルシステム</h2>
-
-  <p>10 ライン消去ごとにレベルが上がり、ピースの落下速度が速くなります。</p>
-  <div class="panel">
-    <table>
-      <thead><tr><th>レベル</th><th>目安の落下速度</th></tr></thead>
-      <tbody>
-        <tr><td>1</td><td>48 フレームに 1 マス（約 0.8 秒）</td></tr>
-        <tr><td>5</td><td>32 フレームに 1 マス（約 0.5 秒）</td></tr>
-        <tr><td>10</td><td>12 フレームに 1 マス（約 0.2 秒）</td></tr>
-        <tr><td>11 以上</td><td>最高速（4 フレームに 1 マス）</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<hr>
-
-<!-- ===== TIPS ===== -->
-<div class="section">
-  <div class="section-title">Section 13</div>
-  <h2>攻略のヒント</h2>
-
-  <div class="tip">
-    <div class="tip-num">1</div>
-    <div>フラットな地形を保ちましょう。凸凹が激しいと穴が増え、後で詰まりやすくなります。
-    理想は右端または左端に I ピース用の 1 列縦穴を確保しておくことです（Lv 高速時でも TETRIS を狙いやすい）。</div>
-  </div>
-
-  <div class="tip">
-    <div class="tip-num">2</div>
-    <div>ゾーンはピンチのとき（積み上がったとき）に温存するより、<strong>低積み状態で溜まり次第使う</strong>のが高得点への近道です。
-    ZONE ULTRA（9 ライン）以上を目指すと二次曲線でスコアが跳ね上がります。</div>
-  </div>
-
-  <div class="tip">
-    <div class="tip-num">3</div>
-    <div>ガーベージ警告音が鳴ったら <strong>テトリスか T-Spin</strong> で即座にキャンセルを狙いましょう。
-    無視してガーベージを受け入れると、穴の位置が列ごとにランダムなため整地が難しくなります。</div>
-  </div>
-
-  <div class="tip">
-    <div class="tip-num">4</div>
-    <div>アイテムブロック（RAINBOW・DRILL）は出現したら最優先で使い所を考えましょう。
-    特に <span style="color:var(--garbage)">ガーベージ行</span>が積んである状態で DRILL を使うと <strong>3 倍ボーナス＋相殺</strong>の大チャンスです。</div>
-  </div>
-
-  <div class="tip">
-    <div class="tip-num">5</div>
-    <div>ホールドは「今すぐ使えないピースを避難させる」ために使います。
-    T ピースをホールドに温存しておくと、T-Spin を狙えるタイミングで一気に差し込めます。</div>
-  </div>
-
-  <div class="tip">
-    <div class="tip-num">6</div>
-    <div>ロックディレイ（着地後 0.5 秒の猶予）を活用して、着地後に素早く左右移動や回転を行うことで
-    より深い隙間や壁際への設置が可能になります（最大 15 回のリセットに注意）。</div>
-  </div>
-</div>
-
-<hr>
-
-<!-- ===== UI GUIDE ===== -->
-<div class="section">
-  <div class="section-title">Section 14</div>
-  <h2>画面レイアウト</h2>
-
-  <div class="panel">
-    <div class="panel-title">左パネル</div>
-    <table>
-      <thead><tr><th>表示要素</th><th>内容</th></tr></thead>
-      <tbody>
-        <tr><td>TETRIS ロゴ</td><td>タイトルロゴ</td></tr>
-        <tr><td>HOLD</td><td>保存中のピース（空の場合は「―」）</td></tr>
-        <tr><td>TIME</td><td>現在プレイ時間（ポーズ中は停止）</td></tr>
-        <tr><td>LEVEL</td><td>現在のレベル</td></tr>
-        <tr><td>GOAL</td><td>次レベルまでの残りライン数</td></tr>
-        <tr><td>ZONE</td><td>ゾーンゲージ（満タンで READY! 点滅 → Enter で発動）</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="panel">
-    <div class="panel-title">右パネル</div>
-    <table>
-      <thead><tr><th>表示要素</th><th>内容</th></tr></thead>
-      <tbody>
-        <tr><td>NEXT × 3</td><td>次に出てくる 3 ピースのプレビュー</td></tr>
-        <tr><td>HIGH SCORE</td><td>最高スコア（ファイルに保存・引き継ぎ）</td></tr>
-        <tr><td>SCORE</td><td>現在のスコア</td></tr>
-        <tr><td>LINES</td><td>総消去ライン数</td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <div class="panel">
-    <div class="panel-title">ボード内表示</div>
-    <table>
-      <thead><tr><th>表示要素</th><th>内容</th></tr></thead>
-      <tbody>
-        <tr><td><span class="badge badge-zone">青く光る行</span></td><td>ゾーン中の蓄積ライン（終了時に一括消去）</td></tr>
-        <tr><td><span class="badge badge-gray">グレーの行</span></td><td>ガーベージ行（穴が 1 列あり）</td></tr>
-        <tr><td><span class="badge badge-item">★ マーク</span></td><td>RAINBOW（恵みの雨・全行消去）</td></tr>
-        <tr><td><span class="badge badge-drill">耕 マーク</span></td><td>DRILL（耕運機・縦貫通破壊）</td></tr>
-        <tr><td><span class="badge" style="background:rgba(255,160,32,.2); color:#ffb040">肥 マーク</span></td><td>COMPOST（完熟堆肥・大豊作ボーナス＋ゾーン蓄積）</td></tr>
-        <tr><td><span class="badge" style="background:rgba(64,224,112,.2); color:#50f080">刈 マーク</span></td><td>WEEDER（除草・草刈機・ガーベージ一掃）</td></tr>
-        <tr><td>右側の赤いバー</td><td>ガーベージ警告インジケーター</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-  <!-- ===== DEVELOPER PROFILE & SWING PLAYER ===== -->
-  <div class="section">
-    <div class="section-title">Section 15</div>
-    <h2>開発者まいち自己紹介 &amp; 宮崎かじるスイング動画プレイヤー</h2>
-
-    <div class="panel">
-      <div class="panel-title">👤 まいち (Maichi) プロフィール</div>
-      <p style="margin-bottom: 12px;">
-        太陽あふれる宮崎県で農業とゲーム開発に親しむプログラマー。現代テトリス（SRS・DAS/ARR・ゾーン）を愛し、農業の豊かさをゲームで表現した『大収穫！ 農業テトリス』を制作しました。
+    <div class="card">
+      <p style="margin-bottom:16px;">
+        ボード（幅10マス × 高さ20マス）に落ちてくるブロックを横一列隙間なく埋めることで「ライン消去」が発生し、スコアと経験値が加算されます。
+        10ライン消去（GOAL達成）ごとに農園レベルが上昇し、落下速度が加速します。ブロックが画面最上段をオーバーフローするとゲームオーバーです。
       </p>
-      <table>
-        <thead><tr><th>項目</th><th>詳細</th></tr></thead>
-        <tbody>
-          <tr><td>開発者名</td><td>まいち (Maichi)</td></tr>
-          <tr><td>活動拠点</td><td>宮崎県</td></tr>
-          <tr><td>専門分野</td><td>Python, WebAssembly (Pyodide), UI/UXデザイン, ゴルフスイング分析</td></tr>
-          <tr><td>代表作</td><td>大収穫！ 農業テトリス (agri-tetris), 宮崎かじるスイング動画分析プレイヤー</td></tr>
-        </tbody>
-      </table>
+      
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>システム</th><th>仕様と効果</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong>7バッグシステム</strong></td>
+              <td>7種類のミノが均等に1セット（バッグ）としてシャッフルされて供給されます。同じピースが何連続も偏って出現することはありません。</td>
+            </tr>
+            <tr>
+              <td><strong>ゴーストブロック</strong></td>
+              <td>現在操作中のミノがそのまま真下に落下した時の着地点を半透明枠で常に表示。ミス配置を防止します。</td>
+            </tr>
+            <tr>
+              <td><strong>ホールド機能</strong></td>
+              <td><span class="key-cap" style="min-width:auto; padding:2px 6px;">C</span> または <span class="key-cap" style="min-width:auto; padding:2px 6px;">Shift</span> で現在のピースを左上のホールド枠にキープ可能。温存したミノと手元のミノを入れ替えて戦略的に立ち回れます。</td>
+            </tr>
+            <tr>
+              <td><strong>ロックディレイ</strong></td>
+              <td>ミノが着地しても <strong>0.5秒間（30フレーム）</strong> は固定されません。この猶予中に左右移動や回転を行うとタイマーがリセットされます（1ピースにつき最大15回までリセット可能・無限スピン対策済み）。</td>
+            </tr>
+            <tr>
+              <td><strong>DAS / ARR プリセット</strong></td>
+              <td>
+                <span class="key-cap" style="min-width:auto; padding:2px 6px;">Tab</span> キーで操作感を3段階切替可能。<br>
+                ・<span class="badge badge-blue">NORMAL</span> : DAS 10フレーム / ARR 2フレーム（安定した標準操作感）<br>
+                ・<span class="badge badge-green">FAST</span> : DAS 6フレーム / ARR 1フレーム（軽快で素早い移動）<br>
+                ・<span class="badge badge-gold">PRO</span> : DAS 3フレーム / ARR 1フレーム（即座に壁際へ滑り込む上級者向け）
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
+  </div>
 
-    <div class="panel">
-      <div class="panel-title">🏌️‍♂️ 宮崎かじるスイング動画プレイヤー</div>
-      <p style="margin-bottom: 10px;">
-        『大収穫！ 農業テトリス』ゲーム画面上部ナビバーの「👤 まいち自己紹介 &amp; 🏌️ 宮崎かじるスイング動画」ボタンからいつでも起動可能な専用スイング分析プレイヤーです。
+  <!-- ===== SECTION 03: PIECES ===== -->
+  <div class="section" id="sec-pieces">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 03</span>
+      <h2 class="sec-title">宮崎特産テトリミノ（7種の野菜・果物）</h2>
+    </div>
+    <div class="card">
+      <p style="margin-bottom:16px;">
+        本作のテトリミノは、農業王国・宮崎の豊かな農産物をモチーフにした独自カラーリングが採用されています。
       </p>
-      <ul style="padding-left: 20px; line-height: 1.8; color: var(--text);">
-        <li><strong>スロー再生機能</strong>: 0.25x / 0.5x / 1.0x / 2.0x でフォームの細部まで確認可能。</li>
-        <li><strong>コマ送り / コマ戻し (Frame Advance)</strong>: インパクトやトップの位置を1フレーム単位で分析。</li>
-        <li><strong>スイング軌道 &amp; ガイドライン</strong>: 背骨軸 (Spine Axis)・スイングプレーン・ヘッドスピードのリアルタイム表示トグル。</li>
-        <li><strong>動画ファイル読み込み</strong>: お手持ちのスイング動画 (.mp4 / .webm) をロードして分析可能。</li>
+      <div class="veggie-grid">
+        <div class="veggie-card">
+          <div class="veggie-icon" style="background:#c8ebc8; color:#1b4d1b;">I</div>
+          <div>
+            <div class="veggie-title">白ねぎ (Iミノ)</div>
+            <div class="veggie-desc">透き通る白緑。一発逆転の4ライン消し（大収穫・TETRIS）の主役。</div>
+          </div>
+        </div>
+        <div class="veggie-card">
+          <div class="veggie-icon" style="background:#ffc800; color:#4d3c00;">O</div>
+          <div>
+            <div class="veggie-title">マンゴー (Oミノ)</div>
+            <div class="veggie-desc">完熟の黄金（太陽のたまご）。2×2のどっしりした安定感。</div>
+          </div>
+        </div>
+        <div class="veggie-card">
+          <div class="veggie-icon" style="background:#781ea0; color:#ffffff;">T</div>
+          <div>
+            <div class="veggie-title">なす (Tミノ)</div>
+            <div class="veggie-desc">深みのある紫。高得点T-Spinの要となる最重要ピース。</div>
+          </div>
+        </div>
+        <div class="veggie-card">
+          <div class="veggie-icon" style="background:#1ea028; color:#ffffff;">S</div>
+          <div>
+            <div class="veggie-title">きゅうり (Sミノ)</div>
+            <div class="veggie-desc">宮崎特産の濃緑。シャキッとした段差をつなぐ緑のピース。</div>
+          </div>
+        </div>
+        <div class="veggie-card">
+          <div class="veggie-icon" style="background:#dc2828; color:#ffffff;">Z</div>
+          <div>
+            <div class="veggie-title">トマト (Zミノ)</div>
+            <div class="veggie-desc">鮮烈な赤。Sミノと対をなすジューシーな赤ピース。</div>
+          </div>
+        </div>
+        <div class="veggie-card">
+          <div class="veggie-icon" style="background:#1e3cb4; color:#ffffff;">J</div>
+          <div>
+            <div class="veggie-title">ブルーベリー (Jミノ)</div>
+            <div class="veggie-desc">深みのある青。フック型の形状で地形の窪みを埋める。</div>
+          </div>
+        </div>
+        <div class="veggie-card">
+          <div class="veggie-icon" style="background:#e66e14; color:#ffffff;">L</div>
+          <div>
+            <div class="veggie-title">にんじん (Lミノ)</div>
+            <div class="veggie-desc">鮮やかな橙。左右対称の美しい農園を形作ります。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 04: ITEMS ===== -->
+  <div class="section" id="sec-items">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 04</span>
+      <h2 class="sec-title">農業特殊アイテムシステム（出現率 18%）</h2>
+    </div>
+    <div class="card">
+      <p style="margin-bottom:18px;">
+        ゲーム中、出現するピースの <strong>約18%の確率</strong> で特殊な農業アイテムが付与されます。
+        ブロック内に特殊な漢字や星マークが刻印されており、設置した瞬間に強力な農作業効果が発動します。
+      </p>
+
+      <div class="item-grid">
+        <div class="item-box">
+          <div class="item-avatar" style="background:linear-gradient(135deg,#ff4444,#ff9900,#ffee00,#44ff44,#44aaff,#aa44ff); color:#fff; text-shadow:0 0 8px #fff;">★</div>
+          <div class="item-content">
+            <h3><span class="badge badge-gold">RAINBOW</span> 恵みの雨（列全消去）</h3>
+            <p>設置した瞬間、そのピースが含まれる<strong>すべての横行を強制消去</strong>します（揃っていなくても消去）。ブロック色が虹色に輝き、消去行数 × 200 × レベルのボーナスを獲得します。</p>
+          </div>
+        </div>
+
+        <div class="item-box">
+          <div class="item-avatar" style="background:linear-gradient(135deg,#0c4a6e,#38bdf8); color:#082f49;">耕</div>
+          <div class="item-content">
+            <h3><span class="badge badge-blue">DRILL</span> 耕運機（縦貫通破壊）</h3>
+            <p>設置した瞬間、ピース各列の<strong>真下2〜3マスのブロックを激しく粉砕</strong>し、上のブロックを落とし込みます。<br>
+            特に<strong style="color:var(--gold);">ガーベージ（お邪魔行）破壊時は3倍ボーナス</strong>になり、予約ガーベージも相殺キャンセルします。</p>
+          </div>
+        </div>
+
+        <div class="item-box">
+          <div class="item-avatar" style="background:linear-gradient(135deg,#78350f,#f59e0b); color:#451a03;">肥</div>
+          <div class="item-content">
+            <h3><span class="badge badge-gold">COMPOST</span> 完熟堆肥（豊作＆ゾーン）</h3>
+            <p>豊かな土壌を育む特製堆肥。設置した瞬間に<strong>セル数 × 350 × レベルの大量豊作ボーナススコア</strong>を獲得し、さらに<strong>ゾーンゲージが一気に +25% チャージ</strong>されます。</p>
+          </div>
+        </div>
+
+        <div class="item-box">
+          <div class="item-avatar" style="background:linear-gradient(135deg,#064e3b,#10b981); color:#022c22;">刈</div>
+          <div class="item-content">
+            <h3><span class="badge badge-green">WEEDER</span> 除草機（ガーベージ一掃）</h3>
+            <p>雑草やお邪魔石を一掃する草刈機。盤面最下部の<strong>ガーベージブロック（お邪魔行）を最大2行完全に刈り取って消去</strong>します（ガーベージがない場合は最下段通常ブロックを1行消去）。</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 05: WEATHER & PESTS ===== -->
+  <div class="section" id="sec-weather">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 05</span>
+      <h2 class="sec-title">天候システム ＆ 害虫駆除システム</h2>
+    </div>
+    <div class="card">
+      <p style="margin-bottom:16px;">
+        農業テトリスならではの本格シミュレーション要素！
+        <strong>25ピース設置ごと</strong>に新たな天候が発生し、<strong>12ピースの間</strong>その天候固有の効果がフィールド全体に影響を与えます。
+      </p>
+
+      <div class="weather-grid">
+        <div class="weather-card" style="border-color:#38bdf8; background:rgba(56, 189, 248, 0.08);">
+          <div class="weather-emoji">☀️</div>
+          <div class="weather-name" style="color:#bae6fd;">快晴 (CLEAR)</div>
+          <div class="weather-effect">穏やかな基本の気候。じっくりと盤面を整えて次の天候に備えましょう。</div>
+        </div>
+        <div class="weather-card" style="border-color:#60a5fa; background:rgba(96, 165, 250, 0.08);">
+          <div class="weather-emoji">🌧️</div>
+          <div class="weather-name" style="color:#bfdbfe;">恵みの雨 (RAIN)</div>
+          <div class="weather-effect"><strong style="color:var(--gold);">スコア獲得量 ＆ ゾーンゲージ蓄積量が1.5倍に激増！</strong> 一気に得点を伸ばす好機。</div>
+        </div>
+        <div class="weather-card" style="border-color:#fb923c; background:rgba(251, 146, 60, 0.08);">
+          <div class="weather-emoji">☀️</div>
+          <div class="weather-name" style="color:#fed7aa;">カンカン照り (HEATWAVE)</div>
+          <div class="weather-effect">猛暑により作物の成長とピースの<strong style="color:#fb923c;">落下速度が一時的に高速化</strong>！ 油断禁物。</div>
+        </div>
+        <div class="weather-card" style="border-color:#4ade80; background:rgba(74, 222, 128, 0.08);">
+          <div class="weather-emoji">🐛</div>
+          <div class="weather-name" style="color:#bbf7d0;">害虫大発生 (PEST)</div>
+          <div class="weather-effect">既存ブロックに害虫が3〜5匹付着！ ライン消去で駆除すると高額ボーナス。</div>
+        </div>
+        <div class="weather-card" style="border-color:#c084fc; background:rgba(192, 132, 252, 0.08);">
+          <div class="weather-emoji">🌀</div>
+          <div class="weather-name" style="color:#e9d5ff;">台風接近 (TYPHOON)</div>
+          <div class="weather-effect">強風が吹き荒れる天候警戒モード。慎重なブロック配置が要求されます。</div>
+        </div>
+      </div>
+
+      <div class="card-title" style="margin-top:28px;">🐛 害虫退治ボーナス（ライン消去で駆除）</div>
+      <p style="font-size:13.5px; color:var(--text-sub); margin-bottom:12px;">
+        天候「害虫大発生」時に盤面に張り付いた害虫ブロックは、その行をライン消去することで駆除できます。
+        駆除成功時には「パチン！」という小気味よい効果音と共に、害虫に応じた退治ボーナスが加算されます。
+      </p>
+
+      <div class="pest-grid">
+        <div class="pest-card">
+          <div class="pest-badge" style="background:#3c5a14; color:#d2f050;">ア</div>
+          <div>
+            <div style="font-weight:700; color:#fff;">アブラムシ</div>
+            <div style="font-size:12px; color:var(--gold);">+400点 × レベル</div>
+          </div>
+        </div>
+        <div class="pest-card">
+          <div class="pest-badge" style="background:#14501e; color:#50dc64;">イ</div>
+          <div>
+            <div style="font-weight:700; color:#fff;">イモムシ</div>
+            <div style="font-size:12px; color:var(--gold);">+600点 × レベル</div>
+          </div>
+        </div>
+        <div class="pest-card">
+          <div class="pest-badge" style="background:#5a460a; color:#f0c846;">ス</div>
+          <div>
+            <div style="font-weight:700; color:#fff;">スリップス</div>
+            <div style="font-size:12px; color:var(--gold);">+800点 × レベル</div>
+          </div>
+        </div>
+        <div class="pest-card">
+          <div class="pest-badge" style="background:#5a1414; color:#f05a5a;">ハ</div>
+          <div>
+            <div style="font-weight:700; color:#fff;">ハダニ</div>
+            <div style="font-size:12px; color:var(--gold);">+500点 × レベル</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 06: ZONE SYSTEM ===== -->
+  <div class="section" id="sec-zone">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 06</span>
+      <h2 class="sec-title">ゾーンシステム（時間停止フィーバー）</h2>
+    </div>
+    <div class="card">
+      <p style="margin-bottom:16px;">
+        ライン消去やコンポストアイテムによって画面左下の「ZONEゲージ」が蓄積します。
+        100%に達するとゲージが金色に激しく点滅し、<span class="key-cap" style="min-width:auto; padding:2px 8px;">Enter</span> でゾーンを発動できます！
+      </p>
+
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>アクション</th><th>ゾーンゲージチャージ量</th></tr></thead>
+          <tbody>
+            <tr><td>1 ライン消去（Single）</td><td>+18%</td></tr>
+            <tr><td>2 ライン消去（Double）</td><td>+36%</td></tr>
+            <tr><td>3 ライン消去（Triple）</td><td>+54%</td></tr>
+            <tr><td>4 ライン消去（Tetris / 大収穫）</td><td>+72%</td></tr>
+            <tr><td>T-Spin 消去ボーナス</td><td>さらに +15% 追加チャージ</td></tr>
+            <tr><td>完熟堆肥（COMPOST）設置</td><td>即座に +25% チャージ</td></tr>
+            <tr><td>恵みの雨（RAIN 天候時）</td><td>消去による蓄積量がすべて 1.5倍 にブースト</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card-title" style="margin-top:20px;">⏱️ ゾーン中の特殊ルール</div>
+      <ul style="padding-left:20px; line-height:2; font-size:13.5px; color:var(--text-sub); margin-bottom:16px;">
+        <li><strong>時間停止</strong>: 自動落下および自動ロックが14秒間完全停止。落ち着いて回転や配置を吟味できます。</li>
+        <li><strong>ゾーン行の蓄積</strong>: ラインを揃えても即座に消去されず、<strong style="color:var(--primary);">青白く光る「ゾーン行」</strong>としてボード内に残り続けます。</li>
+        <li><strong>ガーベージ停止</strong>: ゾーン中はガーベージ行のせり上がりが一時停止します。</li>
       </ul>
+
+      <div class="card-title">🏆 ゾーン終了ボーナス（一括消去称号）</div>
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>蓄積ライン数</th><th>達成称号</th><th>ボーナス計算式</th></tr></thead>
+          <tbody>
+            <tr><td>1〜3 ライン</td><td>ZONE LINE!</td><td style="color:var(--gold); font-weight:700;">N² × 450 × レベル</td></tr>
+            <tr><td>4〜5 ライン</td><td>ZONE CLEAR!</td><td style="color:var(--gold); font-weight:700;">N² × 450 × レベル</td></tr>
+            <tr><td>6〜8 ライン</td><td>ZONE TETRIS!</td><td style="color:var(--gold); font-weight:700;">N² × 450 × レベル</td></tr>
+            <tr><td>9〜11 ライン</td><td>ZONE ULTRA!</td><td style="color:var(--gold); font-weight:700;">N² × 450 × レベル</td></tr>
+            <tr><td>12〜14 ライン</td><td>ZONE MASTER!</td><td style="color:var(--gold); font-weight:700;">N² × 450 × レベル</td></tr>
+            <tr><td>15〜17 ライン</td><td>ZONE PERFECT!</td><td style="color:var(--gold); font-weight:700;">N² × 450 × レベル</td></tr>
+            <tr><td>18 ライン以上</td><td><span class="badge badge-gold" style="font-size:13px;">ULTIMATRIS!!</span></td><td style="color:var(--gold); font-weight:900;">N² × 450 × レベル（爆発的超高額スコア）</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:12px; color:var(--text-dim);">※ N = ゾーン中に蓄積した総ライン数。二次曲線で増えるため、18ライン消去時は一撃で145,800点×レベルが入ります。</p>
     </div>
   </div>
 
-</div><!-- /container -->
+  <!-- ===== SECTION 07: GARBAGE ===== -->
+  <div class="section" id="sec-garbage">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 07</span>
+      <h2 class="sec-title">ガーベージシステム（お邪魔行せり上がり）</h2>
+    </div>
+    <div class="card">
+      <p style="margin-bottom:16px;">
+        時間の経過とともに、穴が1箇所空いたグレーのメタリックなお邪魔行（ガーベージ）がボード最下部からせり上がってきます。
+        押し上げによって最上段を超えると即座にゲームオーバーになります。
+      </p>
 
-<div class="footer">
-  大収穫！ 農業テトリス — Pygame &amp; WebAssembly Edition &nbsp;|&nbsp; Python 3 &nbsp;|&nbsp; Created by まいち (Maichi)
-</div>
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>農園レベル</th><th>発生間隔</th><th>一度にせり上がる行数</th></tr></thead>
+          <tbody>
+            <tr><td>Lv 1〜4</td><td>30秒ごと</td><td>1行</td></tr>
+            <tr><td>Lv 5〜9</td><td>25秒ごと</td><td>1行</td></tr>
+            <tr><td>Lv 10〜14</td><td>20秒ごと</td><td>2行</td></tr>
+            <tr><td>Lv 15〜19</td><td>15秒ごと</td><td>2行</td></tr>
+            <tr><td>Lv 20以上</td><td>10秒ごと（最速）</td><td>3行</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card-title" style="margin-top:20px;">🛡️ ガーベージの相殺（キャンセルテクニック）</div>
+      <p style="font-size:13.5px; color:var(--text-sub); margin-bottom:12px;">
+        せり上がる <strong>3秒前</strong> に重厚な警告地響き音が鳴り、ボード右側に<strong>赤い警告バーと「！」マーク</strong>が点滅します。
+        この警告時間内に以下の高等テクニックを決めると、予約されたガーベージを無効化できます。
+      </p>
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>対抗アクション</th><th>相殺効果</th></tr></thead>
+          <tbody>
+            <tr><td><span class="badge badge-gold">TETRIS（4ライン消し）</span></td><td>予約ガーベージを完全相殺 ＆ タイマーをリセット</td></tr>
+            <tr><td><span class="badge badge-purple">T-Spin（ライン消去付き）</span></td><td>予約ガーベージを完全相殺 ＆ タイマーをリセット</td></tr>
+            <tr><td><span class="badge badge-blue">耕 DRILL でガーベージ破壊</span></td><td>3倍ボーナス獲得 ＆ 予約ガーベージをキャンセル</td></tr>
+            <tr><td><span class="badge badge-green">刈 WEEDER（除草機）設置</span></td><td>盤面ガーベージ最大2行を即消去 ＆ 予約を軽減</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 08: SCORING ===== -->
+  <div class="section" id="sec-score">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 08</span>
+      <h2 class="sec-title">スコア計算・Back-to-Back・コンボ</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 基礎スコア一覧（× 現在のレベル）</div>
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>クリア種別</th><th>0ライン消し</th><th>1ライン消し</th><th>2ライン消し</th><th>3ライン消し</th><th>4ライン消し</th></tr></thead>
+          <tbody>
+            <tr><td>通常ライン消去</td><td>—</td><td>100</td><td>300</td><td>500</td><td style="color:var(--gold); font-weight:700;">800 (TETRIS)</td></tr>
+            <tr><td>T-Spin</td><td>400</td><td>800</td><td>1,200</td><td>1,600</td><td>—</td></tr>
+            <tr><td>T-Spin Mini</td><td>100</td><td>200</td><td>400</td><td>—</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card-title" style="margin-top:20px;">🔥 Back-to-Back (B2B) ボーナス</div>
+      <p style="font-size:13.5px; color:var(--text-sub); margin-bottom:12px;">
+        テトリス（4ライン消し）または T-Spin消去を<strong>連続して決める</strong>と Back-to-Back 状態になり、基礎得点が <strong style="color:var(--gold);">1.5倍</strong> に跳ね上がります！
+        途中で通常の1〜3ライン消去を挟むとリセットされます。
+      </p>
+
+      <div class="card-title">⚡ コンボボーナス（連続消去）</div>
+      <p style="font-size:13.5px; color:var(--text-sub);">
+        ピースを置くたびに連続してラインを消去するとコンボが発生します。<br>
+        <strong>追加点 ＝ 50 × コンボ数 × レベル</strong><br>
+        ライン消去を行わずにピースを設置するとコンボはリセットされます。
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 09: SRS ===== -->
+  <div class="section" id="sec-srs">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 09</span>
+      <h2 class="sec-title">SRS（ウォールキック）＆ T-Spin 判定</h2>
+    </div>
+    <div class="card">
+      <p style="margin-bottom:14px;">
+        本作はテトリス公式仕様の <strong>Super Rotation System (SRS)</strong> を完全実装しています。
+        壁際やブロックの隙間で回転させた際、最大4パターンの位置補正（ウォールキック）を自動試行し、通常は引っかかる狭い隙間でも滑り込むように回転できます。
+      </p>
+
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>判定タイプ</th><th>成立条件</th><th>特徴</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><span class="badge badge-gold">T-SPIN FULL</span></td>
+              <td>最後の操作が回転であり、Tピースの4隅のうち<strong>3つ以上にブロックまたは外壁</strong>が存在する。かつT字の突き出た正面2隅のうち両方が埋まっている。</td>
+              <td>最大1,600点×レベルの高額点数。B2B対象。</td>
+            </tr>
+            <tr>
+              <td><span class="badge badge-purple">T-SPIN MINI</span></td>
+              <td>最後の操作が回転であり、Tピースの4隅中3つが埋まっているが、正面2隅の片方が空いている。</td>
+              <td>キック回転などで滑り込んだ場合の救済判定。B2B対象。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 10: THEMES ===== -->
+  <div class="section" id="sec-themes">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 10</span>
+      <h2 class="sec-title">四季のビジュアルテーマ（レベル5ごとに変化）</h2>
+    </div>
+    <div class="card">
+      <p style="margin-bottom:16px;">
+        プレイヤーの農園レベルに応じて、背景グラデーション、ボード枠色、浮遊パーティクル、BGMの音色が4つの季節へとドラマチックに移り変わります。
+      </p>
+
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>テーマ名称</th><th>到達レベル</th><th>世界観 ＆ 特殊エフェクト</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><strong style="color:#86efac;">🌱 SPRING FARM（春の畑）</strong></td>
+              <td>Lv 1〜5</td>
+              <td>播種と若葉の季節。黒土と新緑の穏やかなグラデーションの中、若葉のパーティクルが舞います。</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#67e8f9;">💧 SUMMER FIELD（夏の水田）</strong></td>
+              <td>Lv 6〜10</td>
+              <td>清流と青々とした稲穂。水滴バブルが清涼に浮遊し、猛暑や雨の天候とダイナミックに連動します。</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#fdba74;">🍂 AUTUMN ORCHARD（秋の果樹園）</strong></td>
+              <td>Lv 11〜15</td>
+              <td>完熟フルーツと実りの夕暮れ。黄金の果実と紅葉の光の粒（ember）が温かく灯ります。</td>
+            </tr>
+            <tr>
+              <td><strong style="color:#fde047;">🏮 HARVEST FESTIVAL（大収穫祭）</strong></td>
+              <td>Lv 16以上</td>
+              <td>祝祭の直売所と夜市。満天の星空パーティクルと提灯の煌めきの下、最高速の極限バトルが展開します。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 11: AUDIO ===== -->
+  <div class="section" id="sec-audio">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 11</span>
+      <h2 class="sec-title">ダイナミックオーディオ ＆ デンジャーシステム</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">🔊 最新音量設定 ＆ 操作</div>
+      <p style="font-size:13.5px; color:var(--text-sub); margin-bottom:14px;">
+        最新アップデートにより、起動時の初期音量を従来の40%から <strong>快適な10%</strong> に適正化しました。<br>
+        ゲーム中いつでも <span class="key-cap" style="min-width:auto; padding:2px 8px;">[</span> / <span class="key-cap" style="min-width:auto; padding:2px 8px;">-</span> で10%下げ、<span class="key-cap" style="min-width:auto; padding:2px 8px;">]</span> / <span class="key-cap" style="min-width:auto; padding:2px 8px;">+</span> で10%上げることができ、<span class="key-cap" style="min-width:auto; padding:2px 8px;">M</span> で即時消音（MUTE）できます。画面右下に現在の音量%が常時表示されます。
+      </p>
+
+      <div class="card-title">💓 デンジャー状態（ピンチ演出）</div>
+      <p style="font-size:13.5px; color:var(--text-sub); margin-bottom:14px;">
+        ブロックが<strong>上から4行以内</strong>に迫るとデンジャー状態へ突入します：
+      </p>
+      <ul style="padding-left:20px; line-height:1.9; font-size:13px; color:var(--text-sub); margin-bottom:16px;">
+        <li>BGMが自動的にダッキング（音量が半分に減衰）し、低周波のリアルな<strong>心拍音</strong>が鳴り響きます。</li>
+        <li>ブロックがさらに積み上がるにつれて心拍のピッチが速まり、緊迫感を高めます。</li>
+        <li>ラインを消して上から4行より下へ脱出すると、即座に通常音量へ復帰します。</li>
+      </ul>
+
+      <div class="card-title">🎵 リアルタイム・ピッチシフト</div>
+      <p style="font-size:13.5px; color:var(--text-sub);">
+        コンボが続くごとにライン消去音の音程が半音ずつ上昇。レベルアップ時にはファンファーレと共に回転音の倍音周波数が上昇し、スピード感に呼応して音響が進化します。
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 12: UI LAYOUT ===== -->
+  <div class="section" id="sec-ui">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 12</span>
+      <h2 class="sec-title">画面レイアウト完全図解</h2>
+    </div>
+    <div class="card">
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>領域</th><th>パネル名称</th><th>表示内容と役割</th></tr></thead>
+          <tbody>
+            <tr>
+              <td rowspan="7" style="vertical-align:top; font-weight:700; color:var(--primary);">左パネル<br>(幅150px)</td>
+              <td><strong>TETRIS ロゴ</strong></td>
+              <td>鮮やかなマルチカラーのタイトルロゴ</td>
+            </tr>
+            <tr><td><strong>HOLD</strong></td><td>キープ中のミノを表示。空のときは「―」</td></tr>
+            <tr><td><strong>TIME</strong></td><td>プレイ経過時間（分:秒）。ポーズ中はカウント停止</td></tr>
+            <tr><td><strong>LEVEL</strong></td><td>現在の農園レベルバッジ（四季テーマと連動）</td></tr>
+            <tr><td><strong>GOAL</strong></td><td>次のレベルに上がるまでに必要な残りライン数</td></tr>
+            <tr><td><strong>ZONE</strong></td><td>ゾーンゲージ。満タンで「READY! [Enter]」が点滅。発動中はタイマー残量バー</td></tr>
+            <tr><td><strong>WEATHER</strong></td><td>現在の天候（☀️ 快晴, 🌧️ 恵みの雨等）と変化までの残りピース数</td></tr>
+
+            <tr>
+              <td rowspan="7" style="vertical-align:top; font-weight:700; color:var(--gold);">右パネル<br>(幅188px)</td>
+              <td><strong>NEXT</strong></td>
+              <td>次に出現する3個先までのテトリミノを先行表示</td>
+            </tr>
+            <tr><td><strong>最高収穫高</strong></td><td>自己ベストハイスコア（自動セーブ・次回起動時引継ぎ）</td></tr>
+            <tr><td><strong>収穫高</strong></td><td>現在プレイ中の獲得スコア</td></tr>
+            <tr><td><strong>出荷数</strong></td><td>これまでに消去した総ライン数</td></tr>
+            <tr><td><strong>THEME バッジ</strong></td><td>現在の季節テーマ名（例: [ SPRING FARM ]）</td></tr>
+            <tr><td><strong>操作ガイド</strong></td><td>キーバインド（ホールド、回転、ZONE、消音等）の常時ヒント</td></tr>
+            <tr><td><strong>BGM音量インジケーター</strong></td><td>現在の音量パーセンテージ、または消音中（MUTE ON）表示</td></tr>
+
+            <tr>
+              <td rowspan="4" style="vertical-align:top; font-weight:700; color:var(--green);">中央ボード<br>(10×20)</td>
+              <td><strong>ゾーン蓄積行</strong></td>
+              <td>ゾーン中にラインを揃えると青白く発光してストック</td>
+            </tr>
+            <tr><td><strong>ガーベージ行</strong></td><td>最下部からせり上がるグレーのブロック（1列穴あき）</td></tr>
+            <tr><td><strong>農業アイテム</strong></td><td>★(雨)・耕(ドリル)・肥(コンポスト)・刈(除草機)の刻印セル</td></tr>
+            <tr><td><strong>右側赤色警告バー</strong></td><td>ガーベージがせり上がる3秒前から表示される危険度ゲージ</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 13: TIPS ===== -->
+  <div class="section" id="sec-tips">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 13</span>
+      <h2 class="sec-title">大収穫・ハイスコアへの攻略ヒント</h2>
+    </div>
+    <div class="card">
+      <div class="tip-box">
+        <div class="tip-idx">01</div>
+        <div class="tip-text">
+          <strong>平坦な地形をキープする</strong><br>
+          山あり谷ありの凸凹地形を作ると隙間にブロックが埋まり、後で致命的な穴が残ります。右端または左端に白ねぎ（Iミノ）用の1列縦穴を空けておき、残りの9列をフラットに保つのが定石です。
+        </div>
+      </div>
+      <div class="tip-box">
+        <div class="tip-idx">02</div>
+        <div class="tip-text">
+          <strong>ゾーンは「低積み状態」で即座に発動する</strong><br>
+          ゾーンはピンチ時の逃げ場として温存するより、盤面が低く整っている時に発動して大量のラインを一括消去するのが超ハイスコアへの近道です。ZONE ULTRA（9ライン以上）を超えると指数関数的に得点が跳ね上がります。
+        </div>
+      </div>
+      <div class="tip-box">
+        <div class="tip-idx">03</div>
+        <div class="tip-text">
+          <strong>天候「恵みの雨」を見逃すな</strong><br>
+          天候が 🌧️ 恵みの雨 になったら、スコアとゾーンゲージが1.5倍になります。このタイミングでテトリス（4ライン消し）やコンポストアイテムを決めると、一瞬でゲージが満タンになります。
+        </div>
+      </div>
+      <div class="tip-box">
+        <div class="tip-idx">04</div>
+        <div class="tip-text">
+          <strong>ガーベージ警告音が鳴ったら即キャンセル</strong><br>
+          「ガガガッ」という警告音が鳴り赤いバーが出現したら、慌てずにテトリスかT-Spinを放ちましょう。予約されていたガーベージが相殺され、タイマーが完全にリセットされます。
+        </div>
+      </div>
+      <div class="tip-box">
+        <div class="tip-idx">05</div>
+        <div class="tip-text">
+          <strong>ロックディレイをフル活用する</strong><br>
+          着地後も0.5秒の猶予があります。壁際や狭い窪みでも、着地した瞬間に左右移動や回転を素早く連打することで、通常では入れない隙間へミノをねじ込むことができます（最大15回リセット）。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 14: PROFILE ===== -->
+  <div class="section" id="sec-profile">
+    <div class="sec-header">
+      <span class="sec-badge">SEC 14</span>
+      <h2 class="sec-title">開発者プロフィール</h2>
+    </div>
+    <div class="card">
+      <div class="card-title">👤 まいち (Maichi)</div>
+      <p style="margin-bottom:14px; line-height:1.8;">
+        太陽あふれる宮崎県在住。農業の温もりとゲームプログラミングの面白さを融合させ、世界中のプレイヤーが楽しめるハイブリッドWebテトリスとして『大収穫！ 農業テトリス』を開発しました。
+      </p>
+      <div class="table-responsive">
+        <table>
+          <thead><tr><th>項目</th><th>プロフィール内容</th></tr></thead>
+          <tbody>
+            <tr><td>開発者</td><td>まいち (Maichi)</td></tr>
+            <tr><td>活動地域</td><td>宮崎県</td></tr>
+            <tr><td>主要開発技術</td><td>Python, Pygame-ce, WebAssembly (Pyodide), JavaScript, Web Audio API</td></tr>
+            <tr><td>公開リポジトリ</td><td><a href="https://github.com/maichi333/agri-tetris" target="_blank" style="color:var(--primary);">github.com/maichi333/agri-tetris</a></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<footer>
+  <p>大収穫！ 農業テトリス (agri-tetris) &nbsp;|&nbsp; Modern Hybrid Edition (Pygame &amp; WebAssembly)</p>
+  <p style="margin-top:6px;">© 2026 まいち (Maichi). All rights reserved.</p>
+</footer>
 
 </body>
 </html>
