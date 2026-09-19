@@ -3123,8 +3123,8 @@ class Tetris:
         lv = self.f_med.render(str(self.lines), True, th['c_text'])
         self.screen.blit(lv, lv.get_rect(center=(rcx, BOARD_Y + 438)))
 
-        # テーマ名バッジ
-        theme_surf = self.f_sm.render(f"[ {th['name']} ]", True, th['c_dim'])
+        # テーマ名バッジ（日本語対応フォント f_jp_sm を使用）
+        theme_surf = self.f_jp_sm.render(f"[ {th['name']} ]", True, th['c_dim'])
         self.screen.blit(theme_surf, theme_surf.get_rect(center=(rcx, BOARD_Y + 468)))
 
         # 操作ガイド
