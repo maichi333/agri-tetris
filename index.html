@@ -73,9 +73,421 @@
       color: #ff9999;
       white-space: pre-wrap;
     }
+
+    /* ── トップナビゲーション ── */
+    #top-nav {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      display: flex;
+      gap: 12px;
+      background: rgba(10, 26, 10, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 8px 18px;
+      border-radius: 30px;
+      border: 1px solid rgba(200, 230, 60, 0.25);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+    .nav-btn {
+      background: linear-gradient(135deg, #1e3a1e, #0e200e);
+      color: #e2f592;
+      border: 1px solid rgba(200, 230, 60, 0.4);
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.25s ease;
+      text-decoration: none;
+    }
+    .nav-btn:hover {
+      background: linear-gradient(135deg, #2e5a2e, #183818);
+      color: #ffffff;
+      border-color: #c8e63c;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(200, 230, 60, 0.3);
+    }
+    .nav-btn.primary {
+      background: linear-gradient(135deg, #3a8a00, #c8e63c);
+      color: #051405;
+      border: none;
+      font-weight: 700;
+    }
+    .nav-btn.primary:hover {
+      background: linear-gradient(135deg, #4ab000, #d8f64c);
+      box-shadow: 0 4px 20px rgba(200, 230, 60, 0.5);
+    }
+
+    /* ── まいち自己紹介 & 宮崎かじるスイング動画 モーダル ── */
+    #profile-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      background: rgba(4, 10, 4, 0.85);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    #profile-modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: linear-gradient(165deg, #0e1e12 0%, #07120a 100%);
+      border: 1px solid rgba(200, 230, 60, 0.3);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 860px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(74, 138, 0, 0.2);
+      color: #e0e8e0;
+      padding: 28px;
+      position: relative;
+      animation: modalFadeIn 0.3s ease-out;
+    }
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .modal-close:hover {
+      background: #ff4444;
+      border-color: #ff6666;
+      transform: rotate(90deg);
+    }
+
+    /* プロフィールヘッダー */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid rgba(250, 250, 250, 0.1);
+      margin-bottom: 24px;
+    }
+    .avatar-box {
+      width: 76px;
+      height: 76px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c8e63c, #3a8a00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      box-shadow: 0 0 20px rgba(200, 230, 60, 0.4);
+      flex-shrink: 0;
+    }
+    .profile-info h2 {
+      font-size: 1.6rem;
+      color: #ffffff;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .profile-tag {
+      font-size: 0.75rem;
+      background: rgba(200, 230, 60, 0.2);
+      color: #c8e63c;
+      padding: 3px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(200, 230, 60, 0.3);
+    }
+    .profile-bio {
+      font-size: 0.9rem;
+      color: #a0b8a0;
+      line-height: 1.5;
+    }
+
+    /* セクションタイトル */
+    .section-head {
+      font-size: 1.15rem;
+      color: #c8e63c;
+      margin: 24px 0 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-head::before {
+      content: '';
+      display: inline-block;
+      width: 4px;
+      height: 16px;
+      background: #c8e63c;
+      border-radius: 2px;
+    }
+
+    /* 宮崎かじる スイング動画プレイヤー コンポーネント */
+    .player-card {
+      background: rgba(10, 20, 12, 0.9);
+      border: 1px solid rgba(200, 230, 60, 0.25);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 20px;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+    }
+    .player-display-area {
+      position: relative;
+      width: 100%;
+      height: 380px;
+      background: #000;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .player-video, .player-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .player-canvas {
+      pointer-events: none;
+      z-index: 2;
+    }
+    .player-overlay-info {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 3;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(200, 230, 60, 0.3);
+      font-size: 0.75rem;
+      color: #c8e63c;
+      font-family: monospace;
+    }
+
+    /* コントロールバー */
+    .controls-wrapper {
+      margin-top: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .seek-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .seek-bar {
+      flex: 1;
+      accent-color: #c8e63c;
+      height: 6px;
+      cursor: pointer;
+    }
+    .time-display {
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #a0b8a0;
+      min-width: 80px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .btn-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ctrl-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #e0e8e0;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .ctrl-btn:hover {
+      background: rgba(200, 230, 60, 0.2);
+      border-color: #c8e63c;
+      color: #fff;
+    }
+    .ctrl-btn.active {
+      background: #c8e63c;
+      color: #051405;
+      border-color: #c8e63c;
+      font-weight: 700;
+    }
+    .file-input-label {
+      background: linear-gradient(135deg, #1e3a2a, #2a4e3a);
+      border: 1px solid rgba(200, 230, 60, 0.4);
+      color: #c8e63c;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .file-input-label:hover {
+      background: #3a8a00;
+      color: #fff;
+    }
+
+    /* プロフィールカード */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .p-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 14px;
+    }
+    .p-card h4 {
+      color: #c8e63c;
+      font-size: 0.95rem;
+      margin-bottom: 6px;
+    }
+    .p-card p {
+      font-size: 0.85rem;
+      color: #b0c4b0;
+      line-height: 1.4;
+    }
   </style>
 </head>
 <body>
+  <!-- ── トップナビゲーション ── -->
+  <div id="top-nav">
+    <button class="nav-btn primary" id="open-profile-btn">
+      <span>👤</span> まいち自己紹介 & 🏌️ 宮崎かじるスイング動画
+    </button>
+    <a href="tetris_manual.html" target="_blank" class="nav-btn">
+      <span>📖</span> ゲーム説明書
+    </a>
+  </div>
+
+  <!-- ── まいち自己紹介 & 宮崎かじるスイング動画 モーダル ── -->
+  <div id="profile-modal">
+    <div class="modal-content">
+      <button class="modal-close" id="close-profile-btn">&times;</button>
+      
+      <!-- プロフィールヘッダー -->
+      <div class="profile-header">
+        <div class="avatar-box">🌾</div>
+        <div class="profile-info">
+          <h2>まいち (Maichi) <span class="profile-tag">Agri-Tetris Creator / Golfer</span></h2>
+          <div class="profile-bio">
+            宮崎の豊かな自然と農業を愛する開発者。農業テトリスの開発と、ゴルフの理想的なスイング探求（宮崎かじるスイング）に情熱を注いでいます。
+          </div>
+        </div>
+      </div>
+
+      <!-- 宮崎かじる スイング動画プレイヤー セクション -->
+      <div class="section-head">🏌️‍♂️ 宮崎かじる スイング動画プレイヤー (Swing Analysis Player)</div>
+      <div class="player-card">
+        <div class="player-display-area" id="player-container">
+          <video id="swing-video" class="player-video" loop muted playsinline></video>
+          <canvas id="swing-overlay-canvas" class="player-canvas"></canvas>
+          <div class="player-overlay-info" id="overlay-stats">
+            MODE: SWING ANALYSIS | SPEED: <span id="stat-speed">1.0x</span> | GUIDES: ON
+          </div>
+        </div>
+
+        <div class="controls-wrapper">
+          <div class="seek-container">
+            <input type="range" id="video-seek" class="seek-bar" value="0" min="0" max="100" step="0.1">
+            <span class="time-display" id="time-display">00:00 / 00:00</span>
+          </div>
+
+          <div class="btn-row">
+            <div class="btn-group">
+              <button class="ctrl-btn active" id="btn-play-pause">▶ 再生</button>
+              <button class="ctrl-btn" id="btn-step-prev">⏪ 前コマ</button>
+              <button class="ctrl-btn" id="btn-step-next">次コマ ⏩</button>
+            </div>
+
+            <div class="btn-group">
+              <span style="font-size: 0.75rem; color: #aaa;">速度:</span>
+              <button class="ctrl-btn" data-speed="0.25">0.25x</button>
+              <button class="ctrl-btn" data-speed="0.5">0.5x</button>
+              <button class="ctrl-btn active" data-speed="1.0">1.0x</button>
+              <button class="ctrl-btn" data-speed="2.0">2.0x</button>
+            </div>
+
+            <div class="btn-group">
+              <button class="ctrl-btn active" id="btn-toggle-guides">🎯 軌道・ガイド表示</button>
+              <label class="file-input-label">
+                📁 動画読込
+                <input type="file" id="video-file-input" accept="video/*" style="display: none;">
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- まいち自己紹介詳細 カード -->
+      <div class="section-head">🌱 まいち (Maichi) プロフィール & エピソード</div>
+      <div class="profile-grid">
+        <div class="p-card">
+          <h4>🌾 宮崎農業へのこだわり</h4>
+          <p>
+            太陽の恵みあふれる宮崎県で育まれたきゅうり・マンゴー・日向夏・ピーマンなどの名産品をテトリスと融合。農業の力強さと収穫の喜びをゲームで表現しています。
+          </p>
+        </div>
+        <div class="p-card">
+          <h4>🏌️‍♂️ 宮崎かじるスイングとは</h4>
+          <p>
+            宮崎の大自然の中で培われたダイナミックなゴルフスイング。力強い軸回転と正確なインパクト軌道を追求し、スロー再生でのフォーム分析を好んでいます。
+          </p>
+        </div>
+        <div class="p-card">
+          <h4>🎮 農業テトリス (Agri-Tetris)</h4>
+          <p>
+            本格的なSRSウォールキック、ゾーンシステム、天候・害虫ハザードを完備したデュアル環境（Python & Pyodide）対応の次世代テトリスゲームです。
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div id="debug-log"></div>
   <div id="loading-screen">
     <h1>🌾 大収穫！</h1>
@@ -364,6 +776,412 @@ except BaseException as _ex:
     }
 
     main();
+
+    /* =========================================================================
+       宮崎かじる スイング動画プレイヤー & まいち自己紹介 モーダル JS ロジック
+       ========================================================================= */
+    (function() {
+      const modal        = document.getElementById('profile-modal');
+      const openBtn      = document.getElementById('open-profile-btn');
+      const closeBtn     = document.getElementById('close-profile-btn');
+      const video        = document.getElementById('swing-video');
+      const canvas       = document.getElementById('swing-overlay-canvas');
+      const ctx          = canvas ? canvas.getContext('2d') : null;
+      const playPauseBtn = document.getElementById('btn-play-pause');
+      const seekBar      = document.getElementById('video-seek');
+      const timeDisplay  = document.getElementById('time-display');
+      const stepPrevBtn  = document.getElementById('btn-step-prev');
+      const stepNextBtn  = document.getElementById('btn-step-next');
+      const guideBtn     = document.getElementById('btn-toggle-guides');
+      const speedBtns    = document.querySelectorAll('[data-speed]');
+      const fileInput    = document.getElementById('video-file-input');
+      const statSpeed    = document.getElementById('stat-speed');
+
+      let isPlaying = false;
+      let showGuides = true;
+      let playbackSpeed = 1.0;
+      let isVideoLoaded = false;
+      let animFrameId = null;
+
+      // モーダル開閉
+      if (openBtn) openBtn.addEventListener('click', () => {
+        modal.classList.add('active');
+        resizeCanvas();
+        if (!isVideoLoaded && !isPlaying) {
+          startDemoSwingAnimation();
+        }
+      });
+      if (closeBtn) closeBtn.addEventListener('click', () => {
+        modal.classList.remove('active');
+        if (video) video.pause();
+        isPlaying = false;
+      });
+      if (modal) modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+          if (video) video.pause();
+          isPlaying = false;
+        }
+      });
+
+      function resizeCanvas() {
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width  = rect.width || 640;
+        canvas.height = rect.height || 380;
+      }
+      window.addEventListener('resize', resizeCanvas);
+
+      // 動画ファイル選択処理
+      if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const url = URL.createObjectURL(file);
+            video.src = url;
+            isVideoLoaded = true;
+            video.load();
+            video.play();
+            isPlaying = true;
+            playPauseBtn.textContent = '⏸ 一時停止';
+          }
+        });
+      }
+
+      // 再生 / 一時停止
+      if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', () => {
+          if (isVideoLoaded) {
+            if (video.paused) {
+              video.play();
+              isPlaying = true;
+              playPauseBtn.textContent = '⏸ 一時停止';
+            } else {
+              video.pause();
+              isPlaying = false;
+              playPauseBtn.textContent = '▶ 再生';
+            }
+          } else {
+            // デモアニメーションのトグル
+            isPlaying = !isPlaying;
+            playPauseBtn.textContent = isPlaying ? '⏸ 一時停止' : '▶ 再生';
+          }
+        });
+      }
+
+      // 再生速度切替
+      speedBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          speedBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          playbackSpeed = parseFloat(btn.dataset.speed);
+          if (video) video.playbackRate = playbackSpeed;
+          if (statSpeed) statSpeed.textContent = playbackSpeed + 'x';
+        });
+      });
+
+      // ガイド表示切替
+      if (guideBtn) {
+        guideBtn.addEventListener('click', () => {
+          showGuides = !showGuides;
+          guideBtn.classList.toggle('active', showGuides);
+        });
+      }
+
+      // コマ送り / コマ戻し
+      const FRAME_TIME = 1 / 30; // 30fps 想定
+      if (stepPrevBtn) {
+        stepPrevBtn.addEventListener('click', () => {
+          if (isVideoLoaded && video) {
+            video.pause();
+            video.currentTime = Math.max(0, video.currentTime - FRAME_TIME);
+            isPlaying = false;
+            playPauseBtn.textContent = '▶ 再生';
+          } else {
+            demoTime = Math.max(0, demoTime - 0.05);
+          }
+        });
+      }
+      if (stepNextBtn) {
+        stepNextBtn.addEventListener('click', () => {
+          if (isVideoLoaded && video) {
+            video.pause();
+            video.currentTime = Math.min(video.duration || 0, video.currentTime + FRAME_TIME);
+            isPlaying = false;
+            playPauseBtn.textContent = '▶ 再生';
+          } else {
+            demoTime += 0.05;
+          }
+        });
+      }
+
+      // シークバー制御
+      if (video) {
+        video.addEventListener('timeupdate', () => {
+          if (!video.duration) return;
+          const pct = (video.currentTime / video.duration) * 100;
+          if (seekBar) seekBar.value = pct;
+          updateTimeDisplay(video.currentTime, video.duration);
+        });
+      }
+      if (seekBar) {
+        seekBar.addEventListener('input', () => {
+          if (isVideoLoaded && video && video.duration) {
+            video.currentTime = (seekBar.value / 100) * video.duration;
+          } else {
+            demoTime = (seekBar.value / 100) * 4.0;
+          }
+        });
+      }
+
+      function updateTimeDisplay(cur, dur) {
+        if (!timeDisplay) return;
+        const fmt = (t) => {
+          const m = Math.floor(t / 60).toString().padStart(2, '0');
+          const s = Math.floor(t % 60).toString().padStart(2, '0');
+          return `${m}:${s}`;
+        };
+        timeDisplay.textContent = `${fmt(cur)} / ${fmt(dur || 0)}`;
+      }
+
+      // ── 宮崎かじる スイング デモシミュレータアニメーション ──
+      let demoTime = 0;
+      function startDemoSwingAnimation() {
+        cancelAnimationFrame(animFrameId);
+
+        function renderLoop() {
+          if (!ctx) return;
+          const w = canvas.width;
+          const h = canvas.height;
+
+          // 1. 背景描画 (宮崎のゴルフコース & 太平洋の水平線グラデーション)
+          const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.65);
+          skyGrad.addColorStop(0, '#0f2b46');
+          skyGrad.addColorStop(1, '#2c5e3b');
+          ctx.fillStyle = skyGrad;
+          ctx.fillRect(0, 0, w, h);
+
+          // フェアウェイグリーン
+          ctx.fillStyle = '#1c4524';
+          ctx.fillRect(0, h * 0.65, w, h * 0.35);
+
+          // 宮崎のヤシの木シルエット (背景)
+          drawPalmTrees(ctx, w, h);
+
+          // 時間の更新 (再生中のみ)
+          if (isPlaying) {
+            demoTime += (0.016 * playbackSpeed);
+          }
+          const swingPhase = (demoTime % 4.0) / 4.0; // 0.0 ~ 1.0 周期
+
+          if (!isVideoLoaded) {
+            if (seekBar) seekBar.value = swingPhase * 100;
+            updateTimeDisplay(swingPhase * 4.0, 4.0);
+          }
+
+          // 2. スイングポーズ計算 (アドレス → テイクバック → トップ → ダウンスイング → インパクト → フィニッシュ)
+          const centerX = w * 0.45;
+          const groundY = h * 0.72;
+
+          // 関節キネマティクス計算
+          const angleRad = getSwingAngle(swingPhase);
+          const spineAngle = -0.15 + Math.sin(swingPhase * Math.PI * 2) * 0.05;
+
+          // 人体キーポイント
+          const hip = { x: centerX, y: groundY - 110 };
+          const shoulder = {
+            x: hip.x + Math.sin(spineAngle) * 50,
+            y: hip.y - Math.cos(spineAngle) * 50
+          };
+          const head = { x: shoulder.x + 5, y: shoulder.y - 24 };
+
+          const armLen = 55;
+          const hands = {
+            x: shoulder.x + Math.cos(angleRad) * armLen,
+            y: shoulder.y + Math.sin(angleRad) * armLen
+          };
+
+          const clubLen = 75;
+          const clubWristAngle = angleRad + getWristHinge(swingPhase);
+          const clubHead = {
+            x: hands.x + Math.cos(clubWristAngle) * clubLen,
+            y: hands.y + Math.sin(clubWristAngle) * clubLen
+          };
+
+          // 3. スイング軌道 (アーク) のトレーサー描画
+          drawSwingArcTrack(ctx, shoulder, armLen, clubLen, swingPhase);
+
+          // 4. ゴルフプレイヤー「宮崎かじる」描画
+          // 足・体幹
+          ctx.strokeStyle = '#c8e63c';
+          ctx.lineWidth = 4;
+          ctx.lineCap = 'round';
+
+          // 脚
+          ctx.beginPath();
+          ctx.moveTo(hip.x - 20, groundY);
+          ctx.lineTo(hip.x - 10, hip.y);
+          ctx.lineTo(hip.x + 20, groundY);
+          ctx.stroke();
+
+          // 胴体
+          ctx.beginPath();
+          ctx.moveTo(hip.x, hip.y);
+          ctx.lineTo(shoulder.x, shoulder.y);
+          ctx.stroke();
+
+          // 頭部
+          ctx.fillStyle = '#ffdfa0';
+          ctx.beginPath();
+          ctx.arc(head.x, head.y, 11, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#3a8a00';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+
+          // 腕
+          ctx.strokeStyle = '#e0f590';
+          ctx.lineWidth = 3.5;
+          ctx.beginPath();
+          ctx.moveTo(shoulder.x, shoulder.y);
+          ctx.lineTo(hands.x, hands.y);
+          ctx.stroke();
+
+          // クラブ (シャフト & ヘッド)
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(hands.x, hands.y);
+          ctx.lineTo(clubHead.x, clubHead.y);
+          ctx.stroke();
+
+          // クラブヘッド (ゴールド)
+          ctx.fillStyle = '#ffd700';
+          ctx.beginPath();
+          ctx.arc(clubHead.x, clubHead.y, 6, 0, Math.PI * 2);
+          ctx.fill();
+
+          // ボール & 打球エフェクト (インパクト時 0.52~0.56)
+          const ballX = centerX + 18;
+          const ballY = groundY - 4;
+
+          if (swingPhase < 0.53) {
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(ballX, ballY, 5, 0, Math.PI * 2);
+            ctx.fill();
+          } else {
+            // インパクト後の飛翔軌道
+            const flightProgress = (swingPhase - 0.53) * 3.5;
+            const fx = ballX + flightProgress * 300;
+            const fy = ballY - Math.sin(flightProgress * Math.PI * 0.5) * 160;
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(fx, fy, 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 弾道線
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            ctx.beginPath();
+            ctx.moveTo(ballX, ballY);
+            ctx.quadraticCurveTo(ballX + 100, ballY - 140, fx, fy);
+            ctx.stroke();
+            ctx.setLineDash([]);
+          }
+
+          // 5. アノテーションガイド (オーバーレイ)
+          if (showGuides) {
+            // 背骨軸線 (Spine Axis)
+            ctx.strokeStyle = 'rgba(255, 70, 70, 0.7)';
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([6, 3]);
+            ctx.beginPath();
+            ctx.moveTo(hip.x - (shoulder.x - hip.x), hip.y + 40);
+            ctx.lineTo(shoulder.x + (shoulder.x - hip.x) * 1.5, shoulder.y - 40);
+            ctx.stroke();
+
+            // スイングプレーン面
+            ctx.strokeStyle = 'rgba(100, 210, 255, 0.5)';
+            ctx.beginPath();
+            ctx.moveTo(ballX, ballY);
+            ctx.lineTo(shoulder.x - 40, shoulder.y - 60);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // ヘッドスピード & 打ち出し角 HUD
+            ctx.fillStyle = 'rgba(200, 230, 60, 0.9)';
+            ctx.font = 'bold 12px monospace';
+            const headSpeed = (46.5 + Math.sin(swingPhase * Math.PI) * 5.2).toFixed(1);
+            ctx.fillText(`HEAD SPEED: ${headSpeed} m/s`, w - 180, 30);
+            ctx.fillText(`LAUNCH ANGLE: 13.2°`, w - 180, 48);
+            ctx.fillText(`SWING PHASE: ${getPhaseName(swingPhase)}`, w - 180, 66);
+          }
+
+          animFrameId = requestAnimationFrame(renderLoop);
+        }
+
+        renderLoop();
+      }
+
+      function getSwingAngle(p) {
+        // 0.0~0.2: アドレス->テイクバック, 0.2~0.4: トップ, 0.4~0.53: ダウンスイング, 0.53: インパクト, 0.53~1.0: フォロー~フィニッシュ
+        if (p < 0.35) {
+          return Math.PI * 0.5 - (p / 0.35) * Math.PI * 1.1; // トップへ
+        } else if (p < 0.53) {
+          const t = (p - 0.35) / 0.18;
+          return (Math.PI * 0.5 - Math.PI * 1.1) + t * Math.PI * 1.25; // インパクトへ加速
+        } else {
+          const t = (p - 0.53) / 0.47;
+          return (Math.PI * 0.5 + Math.PI * 0.15) + t * Math.PI * 0.85; // フィニッシュへ
+        }
+      }
+
+      function getWristHinge(p) {
+        if (p < 0.35) return (p / 0.35) * 0.8;
+        if (p < 0.53) return 0.8 - ((p - 0.35) / 0.18) * 0.75;
+        return 0.1 + ((p - 0.53) / 0.47) * 0.6;
+      }
+
+      function getPhaseName(p) {
+        if (p < 0.1) return 'ADDRESS';
+        if (p < 0.3) return 'BACKSWING';
+        if (p < 0.42) return 'TOP OF SWING';
+        if (p < 0.51) return 'DOWNSWING';
+        if (p < 0.55) return 'IMPACT';
+        if (p < 0.75) return 'FOLLOW THROUGH';
+        return 'FINISH';
+      }
+
+      function drawSwingArcTrack(ctx, center, r1, r2, p) {
+        ctx.strokeStyle = 'rgba(200, 230, 60, 0.25)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(center.x, center.y, r1 + r2, Math.PI * 0.7, Math.PI * 2.1);
+        ctx.stroke();
+      }
+
+      function drawPalmTrees(ctx, w, h) {
+        // 宮崎名物フェニックスの木シルエット
+        ctx.fillStyle = 'rgba(10, 30, 15, 0.4)';
+        [0.08, 0.88].forEach(pos => {
+          const tx = w * pos;
+          const ty = h * 0.65;
+          ctx.beginPath();
+          ctx.rect(tx - 4, ty - 70, 8, 70);
+          ctx.fill();
+          // 葉
+          for (let a = 0; a < 6; a++) {
+            const ang = (a / 6) * Math.PI * 2;
+            ctx.beginPath();
+            ctx.ellipse(tx + Math.cos(ang)*22, ty - 70 + Math.sin(ang)*12, 20, 6, ang, 0, Math.PI*2);
+            ctx.fill();
+          }
+        });
+      }
+    })();
   </script>
 </body>
 </html>
+
