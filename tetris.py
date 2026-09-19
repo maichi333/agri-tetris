@@ -3129,16 +3129,16 @@ class Tetris:
 
         # 操作ガイド
         hints = [
-            "C / Shift : HOLD",
-            "↑ / X : 右回転   Z : 左回転",
-            "↓ : 加速落下     Space : 即落下",
-            "Enter : ZONE    Tab : 操作感",
-            "M : 消音        - / + ( [ ] ) : 音量",
-            "P : ポーズ      R : リスタート",
+            "C / Shift : ホールド",
+            "↑ / X / Z : 回転操作",
+            "↓ / Space : 落下操作",
+            "Enter : ZONE発動",
+            "M : 消音    -/+ : 音量",
+            "P : ポーズ  R : リスタート",
         ]
         for i, h in enumerate(hints):
-            t = self.f_sm.render(h, True, th['c_dim'])
-            self.screen.blit(t, (rx + 6, BOARD_Y + 482 + i*18))
+            t = self.f_jp_sm.render(h, True, th['c_dim'])
+            self.screen.blit(t, (rx + 10, BOARD_Y + 482 + i*18))
 
         # BGM 音量＆ミュート状態インジケーター（常時表示）
         m_r = pygame.Rect(rx + 8, BOARD_Y + 482 + len(hints)*18 + 2, 172, 24)
@@ -3488,14 +3488,26 @@ class Tetris:
             self.screen.blit(blink_shd, blink_shd.get_rect(center=(cx+2, y_blink+2)))
             self.screen.blit(blink_s,   blink_s.get_rect(center=(cx,     y_blink)))
 
-        # 7. 操作ガイド（日本語対応フォント使用）
+        # 7. 操作ガイド（スタイリッシュな半透明ダークカード＋くっきりシャドウテキスト）
+        panel_w, panel_h = 560, 58
+        panel_x = cx - panel_w // 2
+        panel_y = logo_y + 272
+
+        c_bg = pygame.Surface((panel_w, panel_h), pygame.SRCALPHA)
+        c_bg.fill((8, 22, 12, 195))
+        self.screen.blit(c_bg, (panel_x, panel_y))
+        pygame.draw.rect(self.screen, (50, 100, 55), (panel_x, panel_y, panel_w, panel_h), 1, border_radius=8)
+
         controls = [
-            "← →: 移動   ↑ / X: 右回転   Z: 左回転   Space: 即落下",
-            "C / Shift: ホールド   Enter: ZONE発動   M: 消音   - / + ( [ ] ): 音量",
+            "← → : 移動   ↑/X/Z : 回転   Space : ハードドロップ",
+            "C/Shift : ホールド   Enter : ZONE発動   M : 消音   -/+ : 音量",
         ]
         for i, line in enumerate(controls):
-            ctrl_s = self.f_jp_sm.render(line, True, (140, 140, 165))
-            self.screen.blit(ctrl_s, ctrl_s.get_rect(center=(cx, logo_y + 285 + i*24)))
+            cy_line = panel_y + 16 + i * 26
+            shd = self.f_jp_sm.render(line, True, (0, 0, 0))
+            self.screen.blit(shd, shd.get_rect(center=(cx + 1, cy_line + 1)))
+            ctrl_s = self.f_jp_sm.render(line, True, (215, 235, 190))
+            self.screen.blit(ctrl_s, ctrl_s.get_rect(center=(cx, cy_line)))
 
         # 8. DAS/ARR プリセット表示 (Tab で切替)
         das_delay, arr_speed = DAS_PRESETS[self.das_preset]
