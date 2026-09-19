@@ -2398,8 +2398,10 @@ class Tetris:
                 elif action == 'volume':
                     audio.volume = vol
                     window._seMuted = self.bgm_muted
+                    window._seVolumeScale = vol
             else:
                 window._seMuted = self.bgm_muted
+                window._seVolumeScale = vol
         except Exception:
             pass
 
@@ -2508,12 +2510,12 @@ class Tetris:
                         pygame.mixer.music.set_volume(0.0 if self.bgm_muted else self.bgm_volume)
                     self._js_bgm('mute' if self.bgm_muted else 'unmute')
 
-                # 音量ダウン: [ または - キー
-                if event.key in (pygame.K_LEFTBRACKET, pygame.K_MINUS, pygame.K_KP_MINUS):
+                # 音量ダウン: [ または - キー (JIS / US 配列 / テンキー全対応)
+                if event.key in (pygame.K_LEFTBRACKET, pygame.K_MINUS, pygame.K_KP_MINUS, 91, 45, 1073741909):
                     self._change_bgm_volume(-0.1)
 
-                # 音量アップ: ] または + / = キー
-                if event.key in (pygame.K_RIGHTBRACKET, pygame.K_EQUALS, pygame.K_PLUS, pygame.K_KP_PLUS):
+                # 音量アップ: ] または + / = キー (JIS / US 配列 / テンキー全対応)
+                if event.key in (pygame.K_RIGHTBRACKET, pygame.K_EQUALS, pygame.K_PLUS, pygame.K_KP_PLUS, 93, 61, 43, 1073741911):
                     self._change_bgm_volume(0.1)
 
                 # Tab キー: DAS/ARR プリセット切り替え（どの状態でも有効）

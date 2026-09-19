@@ -245,11 +245,13 @@ __file__ = '/home/pyodide/tetris.py'
         }
 
         window._seMuted = false;
+        window._seVolumeScale = 0.4;
         window._playSE = function(type) {
           if (window._seMuted) return;
           const ctx = _getAudioContext();
           if (!ctx) return;
           const now = ctx.currentTime;
+          const seVolScale = (window._seVolumeScale !== undefined) ? window._seVolumeScale : 1.0;
 
           function tone(freq, startT, dur, wave='sine', vol=0.15, endFreq=null) {
             try {
@@ -260,7 +262,8 @@ __file__ = '/home/pyodide/tetris.py'
               if (endFreq) {
                 osc.frequency.exponentialRampToValueAtTime(Math.max(20, endFreq), startT + dur);
               }
-              gain.gain.setValueAtTime(vol, startT);
+              const finalVol = vol * seVolScale;
+              gain.gain.setValueAtTime(finalVol, startT);
               gain.gain.exponentialRampToValueAtTime(0.0001, startT + dur);
               osc.connect(gain);
               gain.connect(ctx.destination);
@@ -323,11 +326,24 @@ __file__ = '/home/pyodide/tetris.py'
           'Space':32,'KeyC':99,'KeyZ':122,'KeyX':120,
           'KeyP':112,'KeyR':114,'KeyM':109,
           'BracketLeft':91,'BracketRight':93,'Minus':45,'Equal':61,
+          'NumpadSubtract':1073741909,'NumpadAdd':1073741911,
+          'Semicolon':59,'Colon':58,'Backslash':92,'Quote':39,
           'Tab':9,'Enter':13,'NumpadEnter':13
         };
+
+        function resolveKeyCode(e) {
+          if (K_MAP[e.code] !== undefined) return K_MAP[e.code];
+          // JIS キーボード等での文字キーフォールバック
+          if (e.key === '[' || e.key === '@' || e.key === 'む') return 91; // K_LEFTBRACKET
+          if (e.key === ']' || e.key === ';' || e.key === ':') return 93; // K_RIGHTBRACKET
+          if (e.key === '-' || e.key === '_') return 45; // K_MINUS
+          if (e.key === '+' || e.key === '=') return 43; // K_PLUS
+          return undefined;
+        }
+
         document.addEventListener('keydown', (e) => {
           if (e.code === 'Escape') { e.preventDefault(); return; } // ESC 無効化
-          const k = K_MAP[e.code];
+          const k = resolveKeyCode(e);
           if (k !== undefined) {
             e.preventDefault();
             window._pendingKeys.push(k);
@@ -335,7 +351,7 @@ __file__ = '/home/pyodide/tetris.py'
           }
         });
         document.addEventListener('keyup', (e) => {
-          const k = K_MAP[e.code];
+          const k = resolveKeyCode(e);
           if (k !== undefined) {
             window._pendingKeys.push(k);
             window._pendingKeyTypes.push(1);
