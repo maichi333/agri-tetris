@@ -3133,7 +3133,7 @@ class Tetris:
             "↑ / X : 右回転   Z : 左回転",
             "↓ : 加速落下     Space : 即落下",
             "Enter : ZONE    Tab : 操作感",
-            "M : 消音        [ / ] : 音量",
+            "M : 消音        - / + ( [ ] ) : 音量",
             "P : ポーズ      R : リスタート",
         ]
         for i, h in enumerate(hints):
@@ -3491,7 +3491,7 @@ class Tetris:
         # 7. 操作ガイド（日本語対応フォント使用）
         controls = [
             "← →: 移動   ↑ / X: 右回転   Z: 左回転   Space: 即落下",
-            "C / Shift: ホールド   Enter: ZONE発動   M: 消音   P: ポーズ",
+            "C / Shift: ホールド   Enter: ZONE発動   M: 消音   - / + ( [ ] ): 音量",
         ]
         for i, line in enumerate(controls):
             ctrl_s = self.f_jp_sm.render(line, True, (140, 140, 165))
