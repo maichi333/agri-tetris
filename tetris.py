@@ -1476,7 +1476,8 @@ class Tetris:
         self.game_surf = pygame.Surface((SCREEN_W, SCREEN_H))
 
         self.hi_score = load_hiscore()
-        # ── DAS/ARR プリセット（ゲームをまたいで保持）──
+        # ── BGM 音量 / DAS・ARR プリセット（ゲームをまたいで保持）──
+        self.bgm_volume = 0.4    # デフォルト音量 40%
         self.das_preset = 'NORMAL'
         # ── タイトル画面 ──
         self.state     = 'TITLE'   # 'TITLE' | 'PLAYING'
@@ -1509,6 +1510,8 @@ class Tetris:
     # ---------- 新規ゲーム ----------
     def _new_game(self):
         _muted = getattr(self, 'bgm_muted', False)
+        _vol   = getattr(self, 'bgm_volume', 0.4)
+        self.bgm_volume   = _vol
         self.board        = Board()
         self.bag          = SevenBag()
         self.current      = self.bag.pop()
@@ -2296,7 +2299,7 @@ class Tetris:
                     def _restore(game=self):
                         import time; time.sleep(0.9)
                         pygame.mixer.music.set_volume(
-                            0.0 if game.bgm_muted else (0.22 if game.danger else 0.4))
+                            0.0 if game.bgm_muted else (game.bgm_volume * 0.55 if game.danger else game.bgm_volume))
                     threading.Thread(target=_restore, daemon=True).start()
 
     # ---------- 回転（ウォールキック）----------
@@ -2352,6 +2355,18 @@ class Tetris:
         except Exception as _fe:
             print(f"[FLIP ERR] {_fe}")
 
+    # ---------- BGM 音量調整 ----------
+    def _change_bgm_volume(self, delta):
+        self.bgm_volume = round(max(0.0, min(1.0, self.bgm_volume + delta)), 1)
+        self.mute_toast_timer = 90
+        vol_pct = int(self.bgm_volume * 100)
+        if self.bgm_muted and delta > 0:
+            self.bgm_muted = False
+        self.mute_toast_msg = f"BGM 音量: {vol_pct}%" + (" (消音中)" if self.bgm_muted else "")
+        if not _IN_BROWSER:
+            pygame.mixer.music.set_volume(0.0 if self.bgm_muted else self.bgm_volume)
+        self._js_bgm('volume')
+
     # ---------- ブラウザ BGM 制御（JavaScript Audio API 経由） ----------
     def _js_bgm(self, action):
         if not _IN_BROWSER:
@@ -2359,9 +2374,10 @@ class Tetris:
         try:
             from js import window
             audio = window._bgmAudio
+            vol   = 0.0 if self.bgm_muted else self.bgm_volume
             if audio is not None:
                 if action == 'play':
-                    audio.volume = 0.0 if self.bgm_muted else 0.4
+                    audio.volume = vol
                     window._seMuted = self.bgm_muted
                     audio.play()
                 elif action == 'stop':
@@ -2370,15 +2386,18 @@ class Tetris:
                 elif action == 'pause':
                     audio.pause()
                 elif action == 'resume':
-                    audio.volume = 0.0 if self.bgm_muted else 0.4
+                    audio.volume = vol
                     window._seMuted = self.bgm_muted
                     audio.play()
                 elif action == 'mute':
                     audio.volume = 0
                     window._seMuted = True
                 elif action == 'unmute':
-                    audio.volume = 0.4
+                    audio.volume = self.bgm_volume
                     window._seMuted = False
+                elif action == 'volume':
+                    audio.volume = vol
+                    window._seMuted = self.bgm_muted
             else:
                 window._seMuted = self.bgm_muted
         except Exception:
@@ -2484,10 +2503,18 @@ class Tetris:
                 if event.key == pygame.K_m:
                     self.bgm_muted = not self.bgm_muted
                     self.mute_toast_timer = 90
-                    self.mute_toast_msg   = "消音中 (MUTE ON)" if self.bgm_muted else "音声再生 (MUTE OFF)"
+                    self.mute_toast_msg   = "消音中 (MUTE ON)" if self.bgm_muted else f"音声再生 ({int(self.bgm_volume*100)}%)"
                     if not _IN_BROWSER:
-                        pygame.mixer.music.set_volume(0.0 if self.bgm_muted else 0.4)
+                        pygame.mixer.music.set_volume(0.0 if self.bgm_muted else self.bgm_volume)
                     self._js_bgm('mute' if self.bgm_muted else 'unmute')
+
+                # 音量ダウン: [ または - キー
+                if event.key in (pygame.K_LEFTBRACKET, pygame.K_MINUS, pygame.K_KP_MINUS):
+                    self._change_bgm_volume(-0.1)
+
+                # 音量アップ: ] または + / = キー
+                if event.key in (pygame.K_RIGHTBRACKET, pygame.K_EQUALS, pygame.K_PLUS, pygame.K_KP_PLUS):
+                    self._change_bgm_volume(0.1)
 
                 # Tab キー: DAS/ARR プリセット切り替え（どの状態でも有効）
                 if event.key == pygame.K_TAB:
@@ -2656,7 +2683,7 @@ class Tetris:
         if self.danger != self.prev_danger:
             # 状態遷移時に BGM 音量を切替（ミュート中は 0 のまま）
             if not _IN_BROWSER and not self.bgm_muted:
-                target_vol = 0.22 if self.danger else 0.4
+                target_vol = self.bgm_volume * 0.55 if self.danger else self.bgm_volume
                 pygame.mixer.music.set_volume(target_vol)
             self.heartbeat_timer = 0   # 即座に1拍鳴らすため
         self.prev_danger = self.danger
@@ -3104,21 +3131,27 @@ class Tetris:
             "↑ / X : 右回転   Z : 左回転",
             "↓ : 加速落下     Space : 即落下",
             "Enter : ZONE    Tab : 操作感",
+            "M : 消音        [ / ] : 音量",
             "P : ポーズ      R : リスタート",
         ]
         for i, h in enumerate(hints):
             t = self.f_sm.render(h, True, th['c_dim'])
-            self.screen.blit(t, (rx + 6, BOARD_Y + 486 + i*20))
+            self.screen.blit(t, (rx + 6, BOARD_Y + 482 + i*18))
 
-        # ミュート中アイコン表示
+        # BGM 音量＆ミュート状態インジケーター（常時表示）
+        m_r = pygame.Rect(rx + 8, BOARD_Y + 482 + len(hints)*18 + 2, 172, 24)
+        vol_pct = int(self.bgm_volume * 100)
         if self.bgm_muted:
             ticks = pygame.time.get_ticks()
             pulse = 0.7 + 0.3 * abs(math.sin(ticks / 250.0))
-            m_r   = pygame.Rect(rx + 8, BOARD_Y + 486 + len(hints)*20 + 2, 168, 26)
             pygame.draw.rect(self.screen, (140, 20, 20), m_r, border_radius=4)
             pygame.draw.rect(self.screen, (int(255 * pulse), 80, 80), m_r, width=2, border_radius=4)
-            mute_surf = self.f_jp_sm.render("🔇 消音中 (M)", True, (255, 230, 230))
-            self.screen.blit(mute_surf, mute_surf.get_rect(center=m_r.center))
+            status_surf = self.f_jp_sm.render(f"🔇 消音中 ({vol_pct}%)", True, (255, 230, 230))
+        else:
+            pygame.draw.rect(self.screen, th['panel'], m_r, border_radius=4)
+            pygame.draw.rect(self.screen, th['border'], m_r, width=1, border_radius=4)
+            status_surf = self.f_jp_sm.render(f"🎵 BGM 音量: {vol_pct}%", True, th['c_text'])
+        self.screen.blit(status_surf, status_surf.get_rect(center=m_r.center))
 
     # --- TETRIS! バナー ---
     def _draw_tetris_banner(self):
