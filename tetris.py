@@ -478,7 +478,7 @@ def start_bgm_thread(youtube_url):
         try:
             print(f"[BGM] 再生試行: {path} ({os.path.getsize(path)//1024} KB)")
             pygame.mixer.music.load(path)
-            pygame.mixer.music.set_volume(0.4)
+            pygame.mixer.music.set_volume(0.1)
             pygame.mixer.music.play(-1)
             print("[BGM] 再生開始！")
             return True
@@ -1367,7 +1367,7 @@ class Tetris:
                 # BGM
                 _bgm_path = os.path.join(_GAME_DIR, "テトリス  重音テトSV.mp3")
                 pygame.mixer.music.load(_bgm_path)
-                pygame.mixer.music.set_volume(0.4)
+                pygame.mixer.music.set_volume(0.1)
                 pygame.mixer.music.play(-1)
             except Exception as e:
                 print(f"[AUDIO] 初期化失敗: {e}")
@@ -1477,7 +1477,7 @@ class Tetris:
 
         self.hi_score = load_hiscore()
         # ── BGM 音量 / DAS・ARR プリセット（ゲームをまたいで保持）──
-        self.bgm_volume = 0.4    # デフォルト音量 40%
+        self.bgm_volume = 0.1    # デフォルト音量 10%
         self.das_preset = 'NORMAL'
         # ── タイトル画面 ──
         self.state     = 'TITLE'   # 'TITLE' | 'PLAYING'
@@ -1510,7 +1510,7 @@ class Tetris:
     # ---------- 新規ゲーム ----------
     def _new_game(self):
         _muted = getattr(self, 'bgm_muted', False)
-        _vol   = getattr(self, 'bgm_volume', 0.4)
+        _vol   = getattr(self, 'bgm_volume', 0.1)
         self.bgm_volume   = _vol
         self.board        = Board()
         self.bag          = SevenBag()
@@ -1757,7 +1757,7 @@ class Tetris:
 
         # BGM 音量を戻す
         if not _IN_BROWSER and not self.bgm_muted:
-            pygame.mixer.music.set_volume(0.22 if self.danger else 0.4)
+            pygame.mixer.music.set_volume(0.0 if self.bgm_muted else (self.bgm_volume * 0.55 if self.danger else self.bgm_volume))
 
         self.zone_stack = 0
 
@@ -2531,7 +2531,7 @@ class Tetris:
                         if not _IN_BROWSER and not pygame.mixer.music.get_busy():
                             try:
                                 pygame.mixer.music.play(-1)
-                                pygame.mixer.music.set_volume(0.0 if self.bgm_muted else 0.4)
+                                pygame.mixer.music.set_volume(0.0 if self.bgm_muted else self.bgm_volume)
                             except Exception:
                                 pass
                         self._js_bgm('play')

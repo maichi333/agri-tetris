@@ -225,7 +225,7 @@ __file__ = '/home/pyodide/tetris.py'
           const bgmUrl = new URL('テトリス  重音テトSV.mp3', window.location.href).href;
           window._bgmAudio = new Audio(bgmUrl);
           window._bgmAudio.loop   = true;
-          window._bgmAudio.volume = 0.4;
+          window._bgmAudio.volume = 0.1;
         } catch(e) {
           window._bgmAudio = null;
           console.warn('[BGM]', e);
@@ -245,7 +245,7 @@ __file__ = '/home/pyodide/tetris.py'
         }
 
         window._seMuted = false;
-        window._seVolumeScale = 0.4;
+        window._seVolumeScale = 0.1;
         window._playSE = function(type) {
           if (window._seMuted) return;
           const ctx = _getAudioContext();
