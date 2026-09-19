@@ -1526,6 +1526,10 @@ class Tetris:
         self._attr_pid    = None   # アトラクトBot: ピース追跡リセット
         self.tetris_timer = 0
         self.move_timer   = 0
+        self.move_dir     = 0
+        self.bgm_muted        = _muted          # タイトル画面等で設定された消音状態をそのまま引き継ぐ
+        self.mute_toast_timer = 0               # ミュート切替時のトースト表示タイマー
+        self.mute_toast_msg   = ""              # ミュート切替時のトースト表示テキスト
         # --- 天候・害虫システム ---
         self.piece_count      = 0          # 累計設置ピース数
         self.weather_type     = 'CLEAR'    # 現在の天候 ('CLEAR', 'RAIN', 'HEATWAVE', 'PEST', 'TYPHOON')
