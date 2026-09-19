@@ -175,7 +175,7 @@ C_WHITE = (255, 255, 255)
 
 THEMES = [
     {   # ── Lv 1-5: 春の畑（播種・芽吹き）─────────────────────
-        'name':    '春の畑',
+        'name':    'SPRING FARM',
         'bg_top':  ( 16,  26,  14),   # 柔らかな若葉と黒土のグラデーション
         'bg_bot':  ( 28,  44,  22),
         'board':   ( 12,  18,  10),
@@ -188,7 +188,7 @@ THEMES = [
         'particle_count': 24,
     },
     {   # ── Lv 6-10: 夏の水田（青葉・清流）────────────────────
-        'name':    '夏の水田',
+        'name':    'SUMMER FIELD',
         'bg_top':  (  8,  26,  38),   # 清流ブルーと青々とした稲穂
         'bg_bot':  ( 12,  50,  62),
         'board':   (  6,  18,  26),
@@ -201,7 +201,7 @@ THEMES = [
         'particle_count': 26,
     },
     {   # ── Lv 11-15: 秋の果樹園（完熟・実り）─────────────────
-        'name':    '秋の果樹園',
+        'name':    'AUTUMN ORCHARD',
         'bg_top':  ( 42,  20,   6),   # 実りの夕暮れオレンジ・アンバー
         'bg_bot':  ( 72,  36,  10),
         'board':   ( 24,  10,   4),
@@ -214,7 +214,7 @@ THEMES = [
         'particle_count': 30,
     },
     {   # ── Lv 16+: 大収穫祭（夜市・直売所）───────────────────
-        'name':    '大収穫祭',
+        'name':    'HARVEST FESTIVAL',
         'bg_top':  ( 24,   8,  36),   # 祝祭の夜空と提灯の煌めき
         'bg_bot':  ( 44,  14,  64),
         'board':   ( 16,   5,  24),
@@ -3123,8 +3123,8 @@ class Tetris:
         lv = self.f_med.render(str(self.lines), True, th['c_text'])
         self.screen.blit(lv, lv.get_rect(center=(rcx, BOARD_Y + 438)))
 
-        # テーマ名バッジ（日本語対応フォント f_jp_sm を使用）
-        theme_surf = self.f_jp_sm.render(f"[ {th['name']} ]", True, th['c_dim'])
+        # テーマ名バッジ (英語表記でスタイリッシュ表示)
+        theme_surf = self.f_sm.render(f"[ {th['name']} ]", True, th['c_dim'])
         self.screen.blit(theme_surf, theme_surf.get_rect(center=(rcx, BOARD_Y + 468)))
 
         # 操作ガイド
